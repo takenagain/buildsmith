@@ -1,11 +1,5 @@
 #!/bin/bash
 
-curl -fsSL https://fvm.app/install.sh | bash
-
-fvm install 3.16.9
-fvm install stable
-fvm install 2.8.1
-
 apt install -y curl git unzip xz-utils zip libglu1-mesa \
 	clang cmake git \
       ninja-build pkg-config \
@@ -16,11 +10,19 @@ apt install -y curl git unzip xz-utils zip libglu1-mesa \
     libbz2-1.0:i386 \
     python3 python3-pip python3-venv
     
+curl -fsSL https://fvm.app/install.sh | bash
+
+fvm install 3.16.9
+fvm install stable
+fvm install 2.8.1
+
 
 echo "export PATH=\"/home/frannas/.fvm_flutter/bin:$PATH\"" >> ~/.bashrc
 echo "alias flutter=\"fvm flutter\"" >> ~/.bashrc
 
 curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
 
+source ~/.bashrc
+nvm install --lts
 nvm use --lts
 
