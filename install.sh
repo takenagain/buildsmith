@@ -1,17 +1,30 @@
 #!/bin/bash
 
-# [ "$UID" -eq 0 ] || exec sudo bash "$0" "$@"
+USE_CASE=$1
 
-timedatectl set-local-rtc 1 --adjust-system-clock
-timedatectl
+./scripts/flatpak.sh
+./scripts/ssh.sh
 
-./flatpak.sh
-./ssh.sh
-./podman_docker.sh
-./rocm.sh
-./flutter.sh
+if [[ "$USE_CASE" == *flutter* ]]; then
+    ./scripts/flutter.sh
+fi
 
-docker compose -f rocm-compose.yml up -d
-docker compose -f rustdesk-compose.yml up -d
+if [[ "$USE_CASE" == *dual-boot* ]]; then
+    timedatectl set-local-rtc 1 --adjust-system-clock
+    timedatectl
+fi 
 
-./modular.sh
+if [[ "$USE_CASE" == *docker* ]]; then
+    ./scripts/podman_docker.sh
+fi 
+
+if [[ "$USE_CASE" == *rocm* ]]; then
+    ./scripts/rocm.sh
+    if [[ "$USE_CASE" == *docker* ]]; then
+        docker compose -f rocm-compose.yml up -d
+    fi
+fi 
+
+if [[ "$USE_CASE" == *mojo* ]]; then
+    ./scripts/modular.sh
+fi
