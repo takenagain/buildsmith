@@ -1,12 +1,12 @@
 #!/bin/bash
 
-apt -y install podman
+sudo apt -y install podman
 
 flatpak install -y flathub io.podman_desktop.PodmanDesktop
 
 # Add Docker's official GPG key:
-apt-get update 
-apt-get -y install ca-certificates curl
+sudo apt-get update 
+sudo apt-get -y install ca-certificates curl
 install -m 0755 -d /etc/apt/keyrings
 curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
 chmod a+r /etc/apt/keyrings/docker.asc
@@ -18,10 +18,10 @@ echo \
   sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
 sudo apt-get update
 
-apt install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+sudo apt install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 
 wget https://desktop.docker.com/linux/main/amd64/139021/docker-desktop-4.28.0-amd64.deb
-apt install -y docker-desktop-4.28.0-amd64.deb
+sudo apt install -y docker-desktop-4.28.0-amd64.deb
 
 echo "
 [registries.search]
