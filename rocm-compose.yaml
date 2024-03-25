@@ -1,0 +1,17 @@
+version: '3'
+services:
+  pytorch:
+    image: rocm/pytorch:latest
+    devices:
+      - /dev/kfd
+      - /dev/dri
+    cap_add:
+      - SYS_PTRACE
+    security_opt:
+      - seccomp:unconfined
+    group_add:
+      - video
+    ipc: host
+    ports:
+      - "8888:8888"
+    restart: unless-stopped
