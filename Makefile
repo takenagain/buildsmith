@@ -25,7 +25,7 @@ build: check-rust
 
 run: build
 	@echo "Running $(BINARY_NAME)..."
-	@$(TARGET_DIR)/$(BINARY_NAME) -s $(CURDIR)/scripts
+	@$(TARGET_DIR)/$(BINARY_NAME) -s $(CURDIR)/scripts -a
 
 clean:
 	@echo "Cleaning build artifacts..."

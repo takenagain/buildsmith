@@ -12,10 +12,14 @@ struct Cli {
     /// Path to the scripts directory
     #[arg(short, long, default_value = ".")]
     scripts_dir: PathBuf,
+
+    /// Flag to control whether all options are selected by default
+    #[arg(short, long, default_value_t = false)]
+    all: bool,
 }
 
 fn main() -> Result<()> {
-    let cli = Cli::parse();
+    let cli: Cli = Cli::parse();
     let os_info = os_info::get();
 
     let scripts: Vec<PathBuf> = collect_scripts(&cli.scripts_dir, os_info.os_type())?;
@@ -26,7 +30,7 @@ fn main() -> Result<()> {
     }
 
     // Assume clean install, so run all scripts by default
-    let default_selections: Vec<bool> = vec![true; scripts.len()];
+    let default_selections: Vec<bool> = vec![cli.all; scripts.len()];
     let script_names: Vec<String> = scripts.into_names();
     let selections = MultiSelect::new()
         .with_prompt("Select scripts to run (space to toggle, enter to confirm)")
