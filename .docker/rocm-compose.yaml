@@ -1,7 +1,8 @@
-version: '3'
 services:
   pytorch:
     image: rocm/pytorch:latest
+    group_add:
+      - video
     devices:
       - /dev/kfd
       - /dev/dri
@@ -9,9 +10,9 @@ services:
       - SYS_PTRACE
     security_opt:
       - seccomp:unconfined
-    group_add:
-      - video
     ipc: host
     ports:
       - "8888:8888"
     restart: unless-stopped
+    stdin_open: true
+    tty: true
