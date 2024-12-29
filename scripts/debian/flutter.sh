@@ -38,23 +38,13 @@ export JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64
 export PATH=$PATH:$JAVA_HOME/bin
 java -version
 
-# Android SDK
-wget -c "https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip"
-sudo mkdir -p /opt/android-sdk
-sudo chown -R $USER:$USER /opt/android-sdk
-unzip commandlinetools-linux-11076708_latest.zip -d /opt/android-sdk
-export ANDROID_HOME=/opt/android-sdk
-echo "export ANDROID_HOME=/opt/android-sdk" | tee -a ~/.bashrc
-$ANDROID_HOME/cmdline-tools/bin/sdkmanager --install "cmdline-tools;latest" --sdk_root=$ANDROID_HOME
-$ANDROID_HOME/cmdline-tools/bin/sdkmanager "platform-tools" "platforms;android-35" --sdk_root=$ANDROID_HOME
-
 # Android Studio
 wget -c "https://redirector.gvt1.com/edgedl/android/studio/ide-zips/2024.2.1.12/android-studio-2024.2.1.12-linux.tar.gz"
 sudo mkdir -p /opt/android-studio
 sudo chown -R $USER:$USER /opt/android-studio
 tar -xzf android-studio-2024.2.1.12-linux.tar.gz -C /opt
 mkdir -p "$HOME"/.local/share/applications
-cat >"$HOME"/.local/share/applications/android-studio.desktop <<-EOF
+cat > $HOME/.local/share/applications/android-studio.desktop <<-EOF
 		[Desktop Entry]
 		Version=2024.2.1.12
 		Type=Application
@@ -66,7 +56,9 @@ cat >"$HOME"/.local/share/applications/android-studio.desktop <<-EOF
 		StartupNotify=true
 		StartupWMClass=android-studio
 	EOF
-chmod +x "$HOME"/.local/share/applications/android-studio.desktop
+chmod +x $HOME/.local/share/applications/android-studio.desktop
+/opt/android-studio/bin/studio.sh
+
 echo "Finished installing Android Studio"
 
 # Run flutter doctor to ensure that everything is configured and installed
