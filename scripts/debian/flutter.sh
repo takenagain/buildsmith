@@ -13,8 +13,8 @@ sudo apt install -y curl git unzip xz-utils zip libglu1-mesa \
 curl -fsSL https://fvm.app/install.sh | bash
 
 fvm install 3.16.9
-fvm install stable
 fvm install 2.8.1
+fvm install stable
 
 echo "export PATH=\"/home/frannas/.fvm_flutter/bin:$PATH\"" >> ~/.bashrc
 echo "alias flutter=\"fvm flutter\"" >> ~/.bashrc
