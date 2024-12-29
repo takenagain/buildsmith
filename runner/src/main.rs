@@ -2,6 +2,7 @@ use anyhow::{Context, Result};
 use clap::Parser;
 use dialoguer::MultiSelect;
 use os_info::Type as OsType;
+use std::fs;
 use std::path::{Path, PathBuf};
 use walkdir::WalkDir;
 
@@ -15,7 +16,7 @@ struct Cli {
 
 fn collect_scripts(scripts_dir: &Path, os_type: OsType) -> Result<Vec<PathBuf>> {
     let mut scripts = Vec::new();
-    
+
     // First, collect scripts from root directory
     for entry in WalkDir::new(scripts_dir)
         .min_depth(1)
@@ -51,12 +52,23 @@ fn collect_scripts(scripts_dir: &Path, os_type: OsType) -> Result<Vec<PathBuf>> 
     Ok(scripts)
 }
 
+fn create_temp_dir() -> Result<PathBuf> {
+    let temp_dir = PathBuf::from("/tmp").join(format!("script-runner-{}", uuid::Uuid::new_v4()));
+    fs::create_dir(&temp_dir).with_context(|| {
+        format!(
+            "Failed to create temporary directory: {}",
+            temp_dir.display()
+        )
+    })?;
+    Ok(temp_dir)
+}
+
 fn main() -> Result<()> {
     let cli = Cli::parse();
     let os_info = os_info::get();
-    
-    let scripts = collect_scripts(&cli.scripts_dir, os_info.os_type())?;
-    
+
+    let scripts: Vec<PathBuf> = collect_scripts(&cli.scripts_dir, os_info.os_type())?;
+
     if scripts.is_empty() {
         println!("No scripts found in the specified directory.");
         return Ok(());
@@ -64,15 +76,20 @@ fn main() -> Result<()> {
 
     let script_names: Vec<String> = scripts
         .iter()
-        .map(|p| p.file_name()
-            .unwrap_or_default()
-            .to_string_lossy()
-            .to_string())
+        .map(|p: &PathBuf| {
+            p.file_name()
+                .unwrap_or_default()
+                .to_string_lossy()
+                .to_string()
+        })
         .collect();
 
+    // Assume clean install, so run all scripts by default
+    let default_selections: Vec<bool> = vec![true; scripts.len()];
     let selections = MultiSelect::new()
         .with_prompt("Select scripts to run (space to toggle, enter to confirm)")
         .items(&script_names)
+        .defaults(&default_selections)
         .interact()?;
 
     if selections.is_empty() {
@@ -80,18 +97,32 @@ fn main() -> Result<()> {
         return Ok(());
     }
 
+    // Create and navigate to a temporary directory for script execution
+    // to isolate and remove artifacts downloaded or built by the scripts.
+    let temp_dir = create_temp_dir()?;
+    println!("Created temporary directory: {}", temp_dir.display());
+
     println!("\nSelected scripts:");
     for &index in selections.iter() {
         let script = &scripts[index];
         println!("Running: {}", script.display());
-        
+
         std::process::Command::new("bash")
             .arg(script)
+            .current_dir(&temp_dir)
             .spawn()
             .with_context(|| format!("Failed to execute script: {}", script.display()))?
             .wait()
             .with_context(|| format!("Failed to wait for script: {}", script.display()))?;
     }
+
+    fs::remove_dir_all(&temp_dir).with_context(|| {
+        format!(
+            "Failed to remove temporary directory: {}",
+            temp_dir.display()
+        )
+    })?;
+    println!("Cleaned up temporary directory: {}", temp_dir.display());
 
     Ok(())
 }
