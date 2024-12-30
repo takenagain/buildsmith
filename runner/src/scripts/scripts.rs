@@ -45,7 +45,6 @@ pub fn collect_scripts(scripts_dir: &Path, os_type: OsType) -> Result<Vec<PathBu
     if os_specific_dir.exists() {
         for entry in WalkDir::new(os_specific_dir)
             .min_depth(1)
-            .max_depth(1)
             .into_iter()
             .filter_map(|e| e.ok())
         {
@@ -55,6 +54,11 @@ pub fn collect_scripts(scripts_dir: &Path, os_type: OsType) -> Result<Vec<PathBu
         }
     }
 
+    scripts.sort_by(|a, b| {
+        let a_name = a.file_name().unwrap().to_string_lossy().to_string();
+        let b_name = b.file_name().unwrap().to_string_lossy().to_string();
+        a_name.cmp(&b_name)
+    });
     Ok(scripts)
 }
 

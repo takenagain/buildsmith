@@ -15,3 +15,8 @@ sudo apt-get update
 sudo apt-get install -y ./docker-desktop-amd63.deb
 systemctl --user enable docker-desktop
 systemctl --user start docker-desktop
+
+# Add user to docker group to avoid using sudo for docker commands
+sudo groupadd docker 2> /dev/null
+sudo usermod -aG docker $USER
+newgrp docker

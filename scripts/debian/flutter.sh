@@ -5,7 +5,7 @@ set -e
 sudo apt install -y curl git unzip xz-utils zip libglu1-mesa \
   libc6:amd64 libstdc++6:amd64 lib32z1 libbz2-1.0:amd64 \
   clang cmake git ninja-build pkg-config libgtk-3-dev \
-  liblzma-dev libstdc++-12-dev
+  liblzma-dev libstdc++-12-dev libsecret-1-dev libsecret-1-0
 
 echo "Installing chromium and setting CHROME_EXECUTABLE variable"
 sudo snap install chromium
