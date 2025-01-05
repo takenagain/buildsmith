@@ -13,6 +13,7 @@ all: run
 check-rust:
 ifeq ($(RUST_CHECK),)
 	@echo "Rust is not installed. Installing Rust..."
+	@sudo apt install -y curl gcc g++ make
 	@curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
 	@source "$$HOME/.cargo/env"
 else

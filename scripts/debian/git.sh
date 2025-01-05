@@ -1,4 +1,4 @@
-sudo apt install libpam-u2f yubikey-agent pinentry-qt pcscd
+sudo apt install -y libpam-u2f yubikey-agent pinentry-qt pcscd
 export SSH_AUTH_SOCK="${XDG_RUNTIME_DIR}/yubikey-agent/yubikey-agent.sock"
 echo "export SSH_AUTH_SOCK=\"${XDG_RUNTIME_DIR}/yubikey-agent/yubikey-agent.sock\"" | tee -a ~/.bashrc
 

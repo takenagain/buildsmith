@@ -2,7 +2,7 @@
 
 set -e
 
-sudo apt install openssh-server ufw fail2ban
+sudo apt install -y openssh-server ufw fail2ban
 sudo systemctl enable ssh --now
 
 read -p "Paste your SSH public key: " ssh_key
