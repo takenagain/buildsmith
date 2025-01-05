@@ -40,3 +40,5 @@ git config --global gpg.format ssh
 git config --global user.signingkey ~/.ssh/id_ed25519_sk_rk.pub
 git config --global commit.gpgsign true
 git config --global tag.gpgSign true
+
+echo "IdentityFile ~/.ssh/id_ed25519_sk_rk" >> ~/.ssh/config
