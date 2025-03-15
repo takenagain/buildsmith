@@ -1,5 +1,5 @@
 services:
-  pytorch:
+  rocm-pytorch:
     image: rocm/pytorch:latest
     group_add:
       - video
@@ -16,3 +16,23 @@ services:
     restart: unless-stopped
     stdin_open: true
     tty: true
+
+  rocm-terminal:
+    image: rocm/rocm-terminal:6.3.1
+    devices:
+      - /dev/kfd:/dev/kfd
+      - /dev/dri:/dev/dri
+    group_add:
+      - 44 # video
+      - 992 # render
+    cap_add:
+      - SYS_PTRACE
+    security_opt:
+      - seccomp=unconfined
+    shm_size: 24G
+    volumes:
+      - /home/frannas/repos/ai/burn:/app/burn
+    # Keep container running with interactive terminal
+    stdin_open: true  # equivalent to docker run -i
+    tty: true         # equivalent to docker run -t
+    entrypoint: /bin/bash

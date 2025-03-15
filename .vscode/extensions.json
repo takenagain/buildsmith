@@ -1,0 +1,17 @@
+{
+    "recommendations": [
+        "redhat.vscode-yaml",
+        "gruntfuggly.todo-tree",
+        "eamodio.gitlens",
+        "github.copilot",
+        "github.copilot-chat",
+        "usernamehw.errorlens",
+        "ms-azuretools.vscode-docker",
+        "ms-vscode-remote.remote-containers",
+        "continue.continue",
+        "saoudrizwan.claude-dev",
+        "vadimcn.vscode-lldb",
+        "ms-toolsai.jupyter",
+        "rust-lang.rust-analyzer"
+    ]
+}
