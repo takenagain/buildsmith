@@ -14,9 +14,7 @@ echo "CHROME_EXECUTABLE=$CHROME_EXECUTABLE" | tee -a ~/.bashrc
     
 curl -fsSL https://raw.githubusercontent.com/leoafarias/fvm/refs/heads/main/scripts/install.sh | bash
 
-fvm install 3.16.9
-fvm install 3.24.5
-fvm install 2.8.1
+fvm install 2.8.1 # used for legacy KW mobile, soon to be removed
 fvm install stable
 
 if ! grep -q "alias flutter=" ~/.bashrc; then
@@ -25,28 +23,20 @@ if ! grep -q "alias flutter=" ~/.bashrc; then
         'alias flutter="fvm flutter"' >> ~/.bashrc
 fi
 
-curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash
-
-export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
-nvm install --lts
-nvm use --lts
-
 sudo apt install -y openjdk-21-jdk openjdk-21-jre android-tools-adb android-tools-fastboot
 export JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64
 export PATH=$PATH:$JAVA_HOME/bin
 java -version
 
 # Android Studio
-wget -c "https://redirector.gvt1.com/edgedl/android/studio/ide-zips/2024.2.1.12/android-studio-2024.2.1.12-linux.tar.gz"
+wget -c "https://redirector.gvt1.com/edgedl/android/studio/ide-zips/2024.3.1.13/android-studio-2024.3.1.13-linux.tar.gz"
 sudo mkdir -p /opt/android-studio
 sudo chown -R $USER:$USER /opt/android-studio
-tar -xzf android-studio-2024.2.1.12-linux.tar.gz -C /opt
+tar -xzf android-studio-2024.3.1.13-linux.tar.gz -C /opt
 mkdir -p "$HOME"/.local/share/applications
 cat > $HOME/.local/share/applications/android-studio.desktop <<-EOF
 		[Desktop Entry]
-		Version=2024.2.1.12
+		Version=2024.3.1.13
 		Type=Application
 		Name=Android Studio
 		Exec="/opt/android-studio/bin/studio.sh" %f

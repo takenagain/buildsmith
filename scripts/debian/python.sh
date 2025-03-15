@@ -23,3 +23,6 @@ pyenv install 3.12
 pyenv install 3.11
 pyenv install 3.10
 pyenv global 3.11
+
+curl -LsSf https://astral.sh/uv/install.sh | sh
+curl -sSf https://rye.astral.sh/get | bash
