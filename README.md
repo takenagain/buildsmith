@@ -1,17 +1,53 @@
-# dev-box-setup-scripts
+# Dev Box Setup Scripts
 
-Collection of setup scripts for dev box configuration (WIP)
+A collection of scripts to set up development environments with a simple runner interface.
 
 ## Usage
 
+### Interactive Mode
+
+Run all scripts in interactive mode:
+
 ```bash
-make
+make install
 ```
 
-## Gnome Extensions
+### Run Specific Scripts
 
-- [Vitals](https://extensions.gnome.org/extension/1460/vitals/): hardware usage and temperature monitoring in top bar.
-- [Tiling Assistant](https://extensions.gnome.org//extension/3733/tiling-assistant/): Windows-style window tiling.
-- [Wallpaper Switcher](https://extensions.gnome.org//extension/4812/wallpaper-switcher/)
-- [Sound Input & Output Device Chooser](https://extensions.gnome.org//extension/906/sound-output-device-chooser/)
-- [ddterm](https://extensions.gnome.org//extension/3780/ddterm/)
+Run a specific script (e.g., to install nodejs):
+
+```bash
+make install nodejs
+```
+
+### List Available Scripts
+
+List all available scripts:
+
+```bash
+make list-scripts
+```
+
+Display scripts in different formats:
+
+```bash
+make list-scripts-json   # JSON format
+make list-scripts-csv    # CSV format
+make list-scripts-table  # Table format
+```
+
+### Development Commands
+
+```bash
+make clean       # Clean build artifacts
+make deps        # Update dependencies
+make test        # Run tests
+make fmt         # Format code
+make fmt-check   # Check code formatting
+make lint        # Run linter
+```
+
+## Project Structure
+
+- `scripts/`: Contains setup scripts
+- `runner/`: Contains the Rust runner application

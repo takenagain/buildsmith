@@ -6,9 +6,9 @@ PROJECT_DIR := $(CURDIR)/$(BINARY_NAME)
 TARGET_DIR := $(PROJECT_DIR)/target/release
 RUST_CHECK := $(shell which rustc)
 
-.PHONY: all check-rust install-rust build run clean
+.PHONY: all check-rust install-rust build install run-scripts run-% list-scripts list-scripts-json list-scripts-csv list-scripts-table clean deps test fmt fmt-check lint
 
-all: run
+all: install
 
 check-rust:
 ifeq ($(RUST_CHECK),)
@@ -24,9 +24,34 @@ build: check-rust
 	@echo "Building $(BINARY_NAME)..."
 	@cargo build --release --manifest-path $(PROJECT_DIR)/Cargo.toml
 
-run: build
-	@echo "Running $(BINARY_NAME)..."
-	@$(TARGET_DIR)/$(BINARY_NAME) -s $(CURDIR)/scripts -a
+install: build
+	@echo "Running $(BINARY_NAME) in interactive mode..."
+	@$(TARGET_DIR)/$(BINARY_NAME) -s $(CURDIR)/scripts interactive --all
+
+# Add a new target for simplified script running
+install-%: build
+	@echo "Running script: $*"
+	@$(TARGET_DIR)/$(BINARY_NAME) -s $(CURDIR)/scripts run $*
+
+run-scripts: build
+	@echo "Running specified scripts..."
+	@$(TARGET_DIR)/$(BINARY_NAME) -s $(CURDIR)/scripts run $(SCRIPTS)
+
+list-scripts: build
+	@echo "Listing available scripts..."
+	@$(TARGET_DIR)/$(BINARY_NAME) -s $(CURDIR)/scripts list
+
+list-scripts-json: build
+	@echo "Listing available scripts in JSON format..."
+	@$(TARGET_DIR)/$(BINARY_NAME) -s $(CURDIR)/scripts list --format json
+
+list-scripts-csv: build
+	@echo "Listing available scripts in CSV format..."
+	@$(TARGET_DIR)/$(BINARY_NAME) -s $(CURDIR)/scripts list --format csv
+
+list-scripts-table: build
+	@echo "Listing available scripts in table format..."
+	@$(TARGET_DIR)/$(BINARY_NAME) -s $(CURDIR)/scripts list --format table
 
 clean:
 	@echo "Cleaning build artifacts..."
