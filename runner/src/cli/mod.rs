@@ -33,7 +33,7 @@ pub enum Commands {
     /// List available scripts
     List {
         /// Output format for the script list
-        #[arg(short, long, value_enum, default_value = "plain")]
+        #[arg(short, long, value_enum, default_value = "table")]
         format: ListFormat,
     },
 }
