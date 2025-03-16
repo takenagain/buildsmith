@@ -68,6 +68,7 @@ pub fn collect_scripts(scripts_dir: Option<&Path>, os_type: OsType) -> Result<Ve
     let os_dir = match os_type {
         OsType::Ubuntu | OsType::Pop | OsType::Raspbian | OsType::Kali | OsType::Debian => "debian",
         OsType::Macos => "darwin",
+        OsType::Alpine => "alpine",
         _ => {
             info!(
                 "OS type {:?} not specifically supported, using only root scripts",
