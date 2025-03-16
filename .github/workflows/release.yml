@@ -33,17 +33,15 @@ jobs:
             asset_name: runner-macos-amd64
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
 
     - name: Set up Rust
-      uses: actions-rs/toolchain@v1
+      uses: actions-rust-lang/setup-rust-toolchain@v1
       with:
         toolchain: stable
-        profile: minimal
-        override: true
 
     - name: Cache dependencies
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: |
           ~/.cargo/registry
@@ -83,14 +81,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Download all artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         
       - name: List artifacts
         run: ls -R
         
       - name: Create Release
         id: create_release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           name: Release ${{ github.sha }}
           tag_name: ${{ github.sha }}

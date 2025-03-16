@@ -6,14 +6,18 @@ PROJECT_DIR := $(CURDIR)/$(BINARY_NAME)
 TARGET_DIR := $(PROJECT_DIR)/target/release
 RUST_CHECK := $(shell which rustc)
 
-.PHONY: all check-rust install-rust build install run-scripts run-% list-scripts list-scripts-json list-scripts-csv list-scripts-table clean deps test fmt fmt-check lint
+.PHONY: all check-rust install-rust build install run-scripts run-% list-scripts list-scripts-json list-scripts-csv list-scripts-table clean deps test fmt fmt-check lint install-deps
 
-all: install
+install-deps:
+	@echo "Installing system dependencies..."
+	@sudo apt update
+	@sudo apt install -y git curl gcc g++ make
+
+all: install-deps install
 
 check-rust:
 ifeq ($(RUST_CHECK),)
 	@echo "Rust is not installed. Installing Rust..."
-	@sudo apt install -y curl gcc g++ make
 	@curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
 	@source "$$HOME/.cargo/env"
 else
@@ -40,18 +44,6 @@ run-scripts: build
 list-scripts: build
 	@echo "Listing available scripts..."
 	@$(TARGET_DIR)/$(BINARY_NAME) -s $(CURDIR)/scripts list
-
-list-scripts-json: build
-	@echo "Listing available scripts in JSON format..."
-	@$(TARGET_DIR)/$(BINARY_NAME) -s $(CURDIR)/scripts list --format json
-
-list-scripts-csv: build
-	@echo "Listing available scripts in CSV format..."
-	@$(TARGET_DIR)/$(BINARY_NAME) -s $(CURDIR)/scripts list --format csv
-
-list-scripts-table: build
-	@echo "Listing available scripts in table format..."
-	@$(TARGET_DIR)/$(BINARY_NAME) -s $(CURDIR)/scripts list --format table
 
 clean:
 	@echo "Cleaning build artifacts..."
