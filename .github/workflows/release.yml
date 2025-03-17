@@ -54,14 +54,14 @@ jobs:
           restore-keys: ${{ matrix.os }}-cargo-
 
       - name: Build
-        run: |
-          cd $PROJECT_DIR
-          cargo build --release
+        working-directory: ${{ github.workspace }}/${{ env.PROJECT_DIR }}
+        run: cargo build --release
 
       - name: Prepare artifact
         shell: bash
+        working-directory: ${{ github.workspace }}/${{ env.PROJECT_DIR }}
         run: |
-          cd $PROJECT_DIR/target/release
+          cd target/release
           if [[ "${{ matrix.os }}" == "windows-latest" ]]; then
             7z a ../../${{ matrix.asset_name }}.zip runner.exe
             mv ../../${{ matrix.asset_name }}.zip ../../${{ matrix.asset_name }}.tar.gz
