@@ -17,7 +17,7 @@ make install
 Run a specific script (e.g., to install nodejs):
 
 ```bash
-make install nodejs
+make install-nodejs
 ```
 
 ### List Available Scripts
@@ -28,20 +28,15 @@ List all available scripts:
 make list-scripts
 ```
 
-Display scripts in different formats:
+### Additional Commands
 
 ```bash
-make list-scripts-json   # JSON format
-make list-scripts-csv    # CSV format
-make list-scripts-table  # Table format
-```
-
-### Development Commands
-
-```bash
-make clean       # Clean build artifacts
-make deps        # Update dependencies
-make test        # Run tests
+make install-deps  # Install system dependencies
+make build        # Build the runner
+make run-scripts  # Run specified scripts (use SCRIPTS variable)
+make clean        # Clean build artifacts
+make deps         # Update dependencies
+make test         # Run tests
 make fmt         # Format code
 make fmt-check   # Check code formatting
 make lint        # Run linter

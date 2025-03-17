@@ -59,7 +59,14 @@ pub fn collect_scripts(scripts_dir: Option<&Path>, os_type: OsType) -> Result<Ve
         .into_iter()
         .filter_map(|e| e.ok())
     {
+        // Skip .sh scripts in root directory on Windows
         if entry.path().extension().map_or(false, |ext| ext == "sh") {
+            if os_type != OsType::Windows {
+                debug!("Found script: {}", entry.path().display());
+                scripts.push(entry.path().to_path_buf());
+            }
+        } else if entry.path().extension().map_or(false, |ext| ext == "ps1") {
+            // Add PowerShell scripts on any platform (they will only execute on Windows)
             debug!("Found script: {}", entry.path().display());
             scripts.push(entry.path().to_path_buf());
         }
@@ -70,6 +77,7 @@ pub fn collect_scripts(scripts_dir: Option<&Path>, os_type: OsType) -> Result<Ve
         OsType::Ubuntu | OsType::Pop | OsType::Raspbian | OsType::Kali | OsType::Debian => "debian",
         OsType::Macos => "darwin",
         OsType::Alpine => "alpine",
+        OsType::Windows => "windows",
         _ => {
             info!(
                 "OS type {:?} not specifically supported, using only root scripts",
@@ -78,6 +86,23 @@ pub fn collect_scripts(scripts_dir: Option<&Path>, os_type: OsType) -> Result<Ve
             return Ok(scripts); // Return only root scripts for unsupported OS
         }
     };
+
+    // Add unix scripts for all Unix-like systems
+    if os_type != OsType::Windows {
+        let unix_dir = scripts_dir.join("unix");
+        if unix_dir.exists() {
+            for entry in WalkDir::new(&unix_dir)
+                .min_depth(1)
+                .into_iter()
+                .filter_map(|e| e.ok())
+            {
+                if entry.path().extension().map_or(false, |ext| ext == "sh") {
+                    debug!("Found Unix-compatible script: {}", entry.path().display());
+                    scripts.push(entry.path().to_path_buf());
+                }
+            }
+        }
+    }
 
     // Look for OS-specific scripts in '{scripts_dir}/{os_dir}'
     let os_specific_dir = scripts_dir.join(os_dir);
