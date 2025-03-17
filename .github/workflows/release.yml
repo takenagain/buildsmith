@@ -4,13 +4,13 @@ on:
   push:
     branches: [main, master]
     paths:
-      - 'runner/**'
-      - '.github/workflows/build-cli.yml'
+      - "runner/**"
+      - ".github/workflows/build-cli.yml"
   pull_request:
     branches: [main, master]
     paths:
-      - 'runner/**'
-  workflow_dispatch:  # Allows manual triggering
+      - "runner/**"
+  workflow_dispatch: # Allows manual triggering
 
 env:
   CARGO_TERM_COLOR: always
@@ -23,7 +23,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-latest]
+        os: [ubuntu-latest, macos-latest, windows-latest]
         include:
           - os: ubuntu-latest
             artifact_name: runner-linux
@@ -31,48 +31,52 @@ jobs:
           - os: macos-latest
             artifact_name: runner-macos
             asset_name: runner-macos-amd64
+          - os: windows-latest
+            artifact_name: runner-windows
+            asset_name: runner-windows-amd64
 
     steps:
-    - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-    - name: Set up Rust
-      uses: actions-rust-lang/setup-rust-toolchain@v1
-      with:
-        toolchain: stable
+      - name: Set up Rust
+        uses: actions-rust-lang/setup-rust-toolchain@v1
+        with:
+          toolchain: stable
 
-    - name: Cache dependencies
-      uses: actions/cache@v4
-      with:
-        path: |
-          ~/.cargo/registry
-          ~/.cargo/git
-          runner/target
-        key: ${{ matrix.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
-        restore-keys: ${{ matrix.os }}-cargo-
+      - name: Cache dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            runner/target
+          key: ${{ matrix.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: ${{ matrix.os }}-cargo-
 
-    - name: Build
-      run: |
-        cd $PROJECT_DIR
-        cargo build --release
+      - name: Build
+        run: |
+          cd $PROJECT_DIR
+          cargo build --release
 
-    - name: Prepare artifact
-      shell: bash
-      run: |
-        cd $PROJECT_DIR/target/release
-        if [[ "${{ matrix.os }}" == "windows-latest" ]]; then
-          7z a ../../${{ matrix.artifact_name }}.zip runner.exe
-        else
-          cp runner ../../${{ matrix.artifact_name }}
-          chmod +x ../../${{ matrix.artifact_name }}
-          tar -czf ../../${{ matrix.asset_name }}.tar.gz -C . runner
-        fi
+      - name: Prepare artifact
+        shell: bash
+        run: |
+          cd $PROJECT_DIR/target/release
+          if [[ "${{ matrix.os }}" == "windows-latest" ]]; then
+            7z a ../../${{ matrix.asset_name }}.zip runner.exe
+            mv ../../${{ matrix.asset_name }}.zip ../../${{ matrix.asset_name }}.tar.gz
+          else
+            cp runner ../../${{ matrix.artifact_name }}
+            chmod +x ../../${{ matrix.artifact_name }}
+            tar -czf ../../${{ matrix.asset_name }}.tar.gz -C . runner
+          fi
 
-    - name: Upload binary artifact
-      uses: actions/upload-artifact@v3
-      with:
-        name: ${{ matrix.asset_name }}
-        path: runner/${{ matrix.asset_name }}.tar.gz
-        if-no-files-found: error
+      - name: Upload binary artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.asset_name }}
+          path: runner/${{ matrix.asset_name }}.tar.gz
+          if-no-files-found: error
 
   create-release:
     name: Create Release
@@ -82,10 +86,10 @@ jobs:
     steps:
       - name: Download all artifacts
         uses: actions/download-artifact@v4
-        
+
       - name: List artifacts
         run: ls -R
-        
+
       - name: Create Release
         id: create_release
         uses: softprops/action-gh-release@v2
@@ -97,6 +101,6 @@ jobs:
           files: |
             runner-linux-amd64/runner-linux-amd64.tar.gz
             runner-macos-amd64/runner-macos-amd64.tar.gz
+            runner-windows-amd64/runner-windows-amd64.tar.gz
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  
