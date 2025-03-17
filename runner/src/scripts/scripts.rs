@@ -324,7 +324,7 @@ pub fn list_scripts(script_names: &[String], format: &str) -> Result<()> {
             }
             println!();
 
-            for os_type in &os_types {
+            for _ in &os_types {
                 print!("{:-<width$}", "", width = column_width);
             }
             println!();
@@ -377,7 +377,7 @@ pub fn list_scripts_by_os(scripts_by_os: &HashMap<String, Vec<PathBuf>>) -> Resu
     }
     println!();
 
-    for os_type in &os_types {
+    for _ in &os_types {
         print!("{:-<width$}", "", width = column_width);
     }
     println!();
