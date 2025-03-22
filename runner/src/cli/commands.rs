@@ -4,9 +4,9 @@ use log::{debug, error, info, warn};
 use std::fs;
 use std::path::PathBuf;
 
+use crate::cli::ListFormat;
 use crate::scripts::fs::create_temp_dir;
 use crate::scripts::scripts::{list_scripts, run_scripts, PathNames};
-use crate::cli::ListFormat;
 
 pub fn interactive_mode(scripts: &[PathBuf], all: bool) -> Result<()> {
     // Assume clean install, so run all scripts by default if all flag is set
@@ -51,15 +51,15 @@ pub fn run_specified_scripts(scripts: &[PathBuf], script_names: Vec<String>) -> 
 
 pub fn list_mode(scripts: &[PathBuf], format: ListFormat) -> Result<()> {
     info!("Listing available scripts");
-    let script_names = scripts.to_vec().into_names();
-    
+    let script_infos = scripts.to_vec().into_script_infos();
+
     match format {
-        ListFormat::Plain => list_scripts(&script_names, "plain")?,
-        ListFormat::Json => list_scripts(&script_names, "json")?,
-        ListFormat::Csv => list_scripts(&script_names, "csv")?,
-        ListFormat::Table => list_scripts(&script_names, "table")?,
+        ListFormat::Plain => list_scripts(&script_infos, "plain")?,
+        ListFormat::Json => list_scripts(&script_infos, "json")?,
+        ListFormat::Csv => list_scripts(&script_infos, "csv")?,
+        ListFormat::Table => list_scripts(&script_infos, "table")?,
     }
-    
+
     Ok(())
 }
 
@@ -78,10 +78,15 @@ fn execute_scripts(scripts: &[PathBuf], selections: &[usize]) -> Result<()> {
     }
 
     debug!("Removing temporary directory");
-    fs::remove_dir_all(&temp_dir)
-        .map_err(|e| anyhow::anyhow!("Failed to remove temporary directory {}: {}", temp_dir.display(), e))?;
+    fs::remove_dir_all(&temp_dir).map_err(|e| {
+        anyhow::anyhow!(
+            "Failed to remove temporary directory {}: {}",
+            temp_dir.display(),
+            e
+        )
+    })?;
     info!("Cleaned up temporary directory: {}", temp_dir.display());
     info!("All selected scripts completed successfully");
-    
+
     Ok(())
 }

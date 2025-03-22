@@ -1,13 +1,23 @@
 use anyhow::{Context, Result};
 use log::{debug, info, warn};
 use os_info::Type as OsType;
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::path::{Path, PathBuf};
 use walkdir::WalkDir;
 
+/// Information about a script including its name, path, and OS.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ScriptInfo {
+    pub name: String,
+    pub path: PathBuf,
+    pub os_type: String,
+}
+
 /// Trait for converting a collection of paths into a collection of names.
 pub trait PathNames {
     fn into_names(&self) -> Vec<String>;
+    fn into_script_infos(&self) -> Vec<ScriptInfo>;
 }
 
 impl PathNames for Vec<PathBuf> {
@@ -34,6 +44,34 @@ impl PathNames for Vec<PathBuf> {
                     .unwrap_or_default();
 
                 format!("{}{}", file_name, platform_info)
+            })
+            .collect()
+    }
+
+    fn into_script_infos(&self) -> Vec<ScriptInfo> {
+        self.iter()
+            .map(|p| {
+                let file_name = p.file_name().map_or_else(
+                    || String::from("<unknown>"),
+                    |name| name.to_string_lossy().to_string(),
+                );
+
+                // Extract OS type from parent directory
+                let os_type = p
+                    .parent()
+                    .and_then(|parent| parent.file_name())
+                    .map(|dir_name| dir_name.to_string_lossy().to_string())
+                    .unwrap_or_else(|| String::from("common"));
+
+                ScriptInfo {
+                    name: file_name,
+                    path: p.clone(),
+                    os_type: if os_type == "scripts" {
+                        String::from("common")
+                    } else {
+                        os_type
+                    },
+                }
             })
             .collect()
     }
@@ -143,88 +181,6 @@ pub fn collect_scripts(scripts_dir: Option<&Path>, os_type: OsType) -> Result<Ve
     Ok(scripts)
 }
 
-/// Collect scripts organized by OS type
-///
-/// Returns a HashMap where the key is the OS name (or "common" for root scripts)
-/// and the value is a vector of script paths for that OS
-pub fn collect_scripts_by_os(scripts_dir: Option<&Path>) -> Result<HashMap<String, Vec<PathBuf>>> {
-    let scripts_dir = scripts_dir.unwrap_or_else(|| Path::new("../scripts"));
-    debug!(
-        "Collecting scripts by OS from directory: {}",
-        scripts_dir.display()
-    );
-
-    let mut scripts_by_os: HashMap<String, Vec<PathBuf>> = HashMap::new();
-    let root_scripts = scripts_by_os
-        .entry("common".to_string())
-        .or_insert_with(Vec::new);
-
-    // Collect scripts from the root scripts directory
-    for entry in WalkDir::new(scripts_dir)
-        .min_depth(1)
-        .max_depth(1)
-        .into_iter()
-        .filter_map(|e| e.ok())
-    {
-        if entry.path().extension().map_or(false, |ext| ext == "sh") {
-            debug!("Found common script: {}", entry.path().display());
-            root_scripts.push(entry.path().to_path_buf());
-        }
-    }
-
-    // Sort the root scripts
-    root_scripts.sort_by(|a, b| {
-        let a_name = a.file_name().unwrap().to_string_lossy();
-        let b_name = b.file_name().unwrap().to_string_lossy();
-        a_name.cmp(&b_name)
-    });
-
-    // Collect OS-specific scripts
-    for entry in WalkDir::new(scripts_dir)
-        .min_depth(1)
-        .max_depth(1)
-        .into_iter()
-        .filter_map(|e| e.ok())
-    {
-        let path = entry.path();
-        if path.is_dir() && path.file_name().is_some() {
-            let os_name = path.file_name().unwrap().to_string_lossy().to_string();
-            if os_name != "scripts" {
-                // Skip the scripts directory itself
-                let os_scripts = scripts_by_os.entry(os_name).or_insert_with(Vec::new);
-
-                // Collect scripts from this OS directory
-                for script_entry in WalkDir::new(path)
-                    .min_depth(1)
-                    .into_iter()
-                    .filter_map(|e| e.ok())
-                {
-                    if script_entry
-                        .path()
-                        .extension()
-                        .map_or(false, |ext| ext == "sh")
-                    {
-                        debug!(
-                            "Found OS-specific script: {}",
-                            script_entry.path().display()
-                        );
-                        os_scripts.push(script_entry.path().to_path_buf());
-                    }
-                }
-
-                // Sort the OS-specific scripts
-                os_scripts.sort_by(|a, b| {
-                    let a_name = a.file_name().unwrap().to_string_lossy();
-                    let b_name = b.file_name().unwrap().to_string_lossy();
-                    a_name.cmp(&b_name)
-                });
-            }
-        }
-    }
-
-    Ok(scripts_by_os)
-}
-
 pub fn run_scripts(
     scripts: &[PathBuf],
     selections: &[usize],
@@ -261,140 +217,80 @@ pub fn run_scripts(
 }
 
 /// Lists available scripts in various formats
-pub fn list_scripts(script_names: &[String], format: &str) -> Result<()> {
+pub fn list_scripts(script_infos: &[ScriptInfo], format: &str) -> Result<()> {
     match format {
         "plain" => {
-            for name in script_names {
-                println!("{}", name);
+            for info in script_infos {
+                println!("{} [{}]", info.name, info.os_type);
             }
         }
         "json" => {
-            let json = serde_json::to_string_pretty(script_names)?;
+            let json = serde_json::to_string_pretty(script_infos)?;
             println!("{}", json);
         }
-        "csv" => {
-            let mut wtr = csv::WriterBuilder::new().from_writer(std::io::stdout());
-
-            wtr.write_record(&["Script Name"])?;
-            for name in script_names {
-                wtr.write_record(&[name])?;
-            }
-            wtr.flush()?;
-        }
-        "table" => {
-            // Group script names by OS type
-            let mut scripts_by_os: HashMap<String, Vec<String>> = HashMap::new();
-
-            // Initialize common scripts list
-            scripts_by_os.insert("common".to_string(), Vec::new());
-
-            for name in script_names {
-                // Check if this script has an OS tag like " [debian]"
-                if let Some(bracket_pos) = name.rfind(" [") {
-                    // Extract the OS type from the brackets
-                    let os_type = name[bracket_pos + 2..name.len() - 1].to_string();
-                    let script_name = name[0..bracket_pos].to_string();
-
-                    scripts_by_os
-                        .entry(os_type)
-                        .or_insert_with(Vec::new)
-                        .push(script_name);
-                } else {
-                    // This is a common script (no OS tag)
-                    scripts_by_os.get_mut("common").unwrap().push(name.clone());
-                }
-            }
-
-            // Get all OS types
-            let mut os_types: Vec<&String> = scripts_by_os.keys().collect();
-            os_types.sort();
-
-            // Make sure "common" comes first
-            if let Some(pos) = os_types.iter().position(|os| *os == "common") {
-                let common = os_types.remove(pos);
-                os_types.insert(0, common);
-            }
-
-            // Determine column width for each column
-            let column_width = 30;
-
-            // Print headers
-            for os_type in &os_types {
-                print!("{:<width$}", os_type, width = column_width);
-            }
-            println!();
-
-            for _ in &os_types {
-                print!("{:-<width$}", "", width = column_width);
-            }
-            println!();
-
-            // Find the maximum number of scripts for any OS type
-            let max_scripts = scripts_by_os.values().map(|v| v.len()).max().unwrap_or(0);
-
-            // Print rows
-            for i in 0..max_scripts {
-                for os_type in &os_types {
-                    if let Some(scripts) = scripts_by_os.get(*os_type) {
-                        if i < scripts.len() {
-                            print!("{:<width$}", scripts[i], width = column_width);
-                        } else {
-                            print!("{:<width$}", "", width = column_width);
-                        }
-                    } else {
-                        print!("{:<width$}", "", width = column_width);
-                    }
-                }
-                println!();
-            }
-        }
-        _ => {
-            return Err(anyhow::anyhow!("Unsupported format: {}", format));
-        }
+        "csv" => write_scripts_to_csv(script_infos)?,
+        "table" => print_scripts_table(),
+        _ => return Err(anyhow::anyhow!("Unsupported format: {}", format)),
     }
 
     Ok(())
 }
 
-/// Print a table of scripts organized by OS type
-pub fn list_scripts_by_os(scripts_by_os: &HashMap<String, Vec<PathBuf>>) -> Result<()> {
-    // Determine all OS types available
+fn write_scripts_to_csv(script_infos: &[ScriptInfo]) -> Result<(), anyhow::Error> {
+    let mut wtr = csv::WriterBuilder::new().from_writer(std::io::stdout());
+    wtr.write_record(&["Script Name", "OS Type", "Path"])?;
+    for info in script_infos {
+        wtr.write_record(&[
+            &info.name,
+            &info.os_type,
+            &info.path.to_string_lossy().to_string(),
+        ])?;
+    }
+    wtr.flush()?;
+    Ok(())
+}
+
+fn collect_scripts_by_os() -> HashMap<String, Vec<String>> {
+    let mut scripts_by_os = HashMap::new();
+    let scripts_dir = Path::new("../scripts");
+
+    if let Ok(entries) = std::fs::read_dir(scripts_dir) {
+        for entry in entries.filter_map(Result::ok) {
+            let path = entry.path();
+            if path.is_dir() {
+                let os_type = path.file_name().unwrap().to_string_lossy().to_string();
+                let mut scripts = Vec::new();
+
+                if let Ok(scripts_entries) = std::fs::read_dir(&path) {
+                    for script_entry in scripts_entries.filter_map(Result::ok) {
+                        if let Some(name) = script_entry.path().file_name() {
+                            scripts.push(name.to_string_lossy().to_string());
+                        }
+                    }
+                }
+
+                scripts.sort();
+                scripts_by_os.insert(os_type, scripts);
+            }
+        }
+    }
+
+    scripts_by_os
+}
+
+fn print_scripts_table() {
+    let scripts_by_os = collect_scripts_by_os();
     let mut os_types: Vec<&String> = scripts_by_os.keys().collect();
     os_types.sort();
 
-    // Ensure "common" is first if it exists
-    if let Some(pos) = os_types.iter().position(|os| *os == "common") {
-        let common = os_types.remove(pos);
-        os_types.insert(0, common);
-    }
-
-    // Determine table width for each column
-    let column_width = 30;
-
-    // Print headers
-    for os_type in &os_types {
-        print!("{:<width$}", os_type, width = column_width);
-    }
-    println!();
-
-    for _ in &os_types {
-        print!("{:-<width$}", "", width = column_width);
-    }
-    println!();
-
-    // Find the maximum number of scripts for any OS type
+    let column_width = print_table_headers(&os_types);
     let max_scripts = scripts_by_os.values().map(|v| v.len()).max().unwrap_or(0);
 
-    // Print rows
     for i in 0..max_scripts {
         for os_type in &os_types {
             if let Some(scripts) = scripts_by_os.get(*os_type) {
                 if i < scripts.len() {
-                    let script_name = scripts[i]
-                        .file_name()
-                        .map(|name| name.to_string_lossy().to_string())
-                        .unwrap_or_else(|| String::from("<unknown>"));
-                    print!("{:<width$}", script_name, width = column_width);
+                    print!("{:<width$}", scripts[i], width = column_width);
                 } else {
                     print!("{:<width$}", "", width = column_width);
                 }
@@ -404,6 +300,17 @@ pub fn list_scripts_by_os(scripts_by_os: &HashMap<String, Vec<PathBuf>>) -> Resu
         }
         println!();
     }
+}
 
-    Ok(())
+fn print_table_headers(os_types: &Vec<&String>) -> usize {
+    let column_width = 30;
+    for os_type in os_types {
+        print!("{:<width$}", os_type, width = column_width);
+    }
+    println!();
+    for _ in os_types {
+        print!("{:-<width$}", "", width = column_width);
+    }
+    println!();
+    column_width
 }

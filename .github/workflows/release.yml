@@ -5,12 +5,14 @@ on:
     branches: [main, master]
     paths:
       - "runner/**"
-      - ".github/workflows/build-cli.yml"
+      - "scripts/**" 
+      - ".github/workflows/release.yml" 
   pull_request:
     branches: [main, master]
     paths:
       - "runner/**"
-  workflow_dispatch: # Allows manual triggering
+      - "scripts/**" 
+  workflow_dispatch: 
 
 env:
   CARGO_TERM_COLOR: always
