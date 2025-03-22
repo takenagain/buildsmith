@@ -4,6 +4,7 @@ use log::{debug, info, warn};
 use runner::cli::commands::{interactive_mode, list_mode, run_specified_scripts};
 use runner::cli::Cli;
 use runner::cli::Commands;
+use runner::scripts::embedded;
 use runner::scripts::scripts::collect_scripts;
 
 fn main() -> Result<()> {
@@ -13,15 +14,43 @@ fn main() -> Result<()> {
     debug!("Parsing command line arguments");
     let cli: Cli = Cli::parse();
     let os_info = os_info::get();
+
     info!("Detected OS: {}", os_info);
 
+    // Try to collect scripts from the specified directory
     debug!("Collecting scripts from: {}", cli.scripts_dir.display());
-    let scripts = collect_scripts(Some(&cli.scripts_dir), os_info.os_type())?;
+    let scripts = collect_scripts(Some(&cli.scripts_dir), os_info.os_type());
 
-    if scripts.is_empty() {
-        warn!("No scripts found in the specified directory.");
-        return Ok(());
-    }
+    // If external scripts are available, use them; otherwise use embedded ones
+    let scripts = match scripts {
+        Ok(scripts) if !scripts.is_empty() => {
+            info!("Using external scripts from: {}", cli.scripts_dir.display());
+            scripts
+        }
+        _ => {
+            info!("No external scripts found, checking for embedded scripts");
+            if embedded::has_embedded_scripts() {
+                match embedded::extract_embedded_scripts(os_info.os_type()) {
+                    Ok(scripts) => {
+                        if scripts.is_empty() {
+                            warn!("No applicable scripts found in embedded scripts");
+                            return Ok(());
+                        }
+                        info!("Using embedded scripts");
+                        scripts
+                    }
+                    Err(e) => {
+                        warn!("Failed to extract embedded scripts: {}", e);
+                        return Ok(());
+                    }
+                }
+            } else {
+                warn!("No scripts found, neither external nor embedded");
+                return Ok(());
+            }
+        }
+    };
+
     info!("Found {} scripts", scripts.len());
     debug!("Scripts: {:?}", scripts);
 

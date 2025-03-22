@@ -10,8 +10,17 @@ RUST_CHECK := $(shell which rustc)
 
 install-deps:
 	@echo "Installing system dependencies..."
-	@sudo apt update
-	@sudo apt install -y git curl gcc g++ make
+	@if [ "$(shell uname -s)" = "Linux" ]; then \
+		if [ -f /etc/debian_version ]; then \
+			bash $(CURDIR)/scripts/debian/apt.sh; \
+		elif [ -f /etc/alpine-release ]; then \
+			sh $(CURDIR)/scripts/alpine/apk.sh; \
+		fi; \
+	elif [ "$(shell uname -s)" = "Darwin" ]; then \
+		bash $(CURDIR)/scripts/darwin/brew.sh; \
+	else \
+		echo "Unsupported OS"; exit 1; \
+	fi
 
 all: install-deps install
 
@@ -23,6 +32,20 @@ ifeq ($(RUST_CHECK),)
 else
 	@echo "Rust is already installed"
 endif
+
+install-rust:
+	@echo "Installing Rust..."
+	@if [ "$(shell uname -s)" = "Linux" ]; then \
+		if [ -f /etc/debian_version ]; then \
+			bash $(CURDIR)/scripts/debian/rust.sh; \
+		elif [ -f /etc/alpine-release ]; then \
+			sh $(CURDIR)/scripts/alpine/rust.sh; \
+		fi; \
+	elif [ "$(shell uname -s)" = "Darwin" ]; then \
+		bash $(CURDIR)/scripts/darwin/rust.sh; \
+	else \
+		echo "Unsupported OS"; exit 1; \
+	fi
 
 build: check-rust
 	@echo "Building $(BINARY_NAME)..."
