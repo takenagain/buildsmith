@@ -4,8 +4,8 @@ use log::{debug, info, warn};
 use runner::cli::commands::{interactive_mode, list_mode, run_specified_scripts};
 use runner::cli::Cli;
 use runner::cli::Commands;
+use runner::scripts::collector::collect_scripts;
 use runner::scripts::embedded;
-use runner::scripts::scripts::collect_scripts;
 
 fn main() -> Result<()> {
     // Initialize the logger with default level INFO

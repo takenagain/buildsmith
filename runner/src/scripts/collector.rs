@@ -57,7 +57,7 @@ fn collect_unix_scripts(scripts_dir: &Path) -> Vec<PathBuf> {
             .into_iter()
             .filter_map(|e| e.ok())
         {
-            if entry.path().extension().map_or(false, |ext| ext == "sh") {
+            if entry.path().extension().is_some_and(|ext| ext == "sh") {
                 debug!("Found Unix-compatible script: {}", entry.path().display());
                 scripts.push(entry.path().to_path_buf());
             }
@@ -85,7 +85,7 @@ fn collect_os_specific_scripts(scripts_dir: &Path, os_dir: &str) -> Vec<PathBuf>
             .into_iter()
             .filter_map(|e| e.ok())
         {
-            if entry.path().extension().map_or(false, |ext| ext == "sh") {
+            if entry.path().extension().is_some_and(|ext| ext == "sh") {
                 debug!("Found OS-specific script: {}", entry.path().display());
                 scripts.push(entry.path().to_path_buf());
             }

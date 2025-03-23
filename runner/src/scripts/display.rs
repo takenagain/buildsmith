@@ -25,9 +25,9 @@ pub fn list_scripts(script_infos: &[ScriptInfo], format: &str) -> Result<()> {
 
 fn write_scripts_to_csv(script_infos: &[ScriptInfo]) -> Result<(), anyhow::Error> {
     let mut wtr = csv::WriterBuilder::new().from_writer(std::io::stdout());
-    wtr.write_record(&["Script Name", "OS Type", "Path"])?;
+    wtr.write_record(["Script Name", "OS Type", "Path"])?;
     for info in script_infos {
-        wtr.write_record(&[
+        wtr.write_record([
             &info.name,
             &info.os_type,
             &info.path.to_string_lossy().to_string(),

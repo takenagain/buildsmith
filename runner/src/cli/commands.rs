@@ -5,8 +5,10 @@ use std::fs;
 use std::path::PathBuf;
 
 use crate::cli::ListFormat;
+use crate::scripts::display::list_scripts;
 use crate::scripts::fs::create_temp_dir;
-use crate::scripts::scripts::{list_scripts, run_scripts, PathNames};
+use crate::scripts::models::PathNames;
+use crate::scripts::runner::run_scripts;
 
 pub fn interactive_mode(scripts: &[PathBuf], all: bool) -> Result<()> {
     // Assume clean install, so run all scripts by default if all flag is set

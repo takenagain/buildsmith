@@ -60,14 +60,6 @@ install-%: build
 	@echo "Running script: $*"
 	@$(TARGET_DIR)/$(BINARY_NAME) -s $(CURDIR)/scripts run $*
 
-run-scripts: build
-	@echo "Running specified scripts..."
-	@$(TARGET_DIR)/$(BINARY_NAME) -s $(CURDIR)/scripts run $(SCRIPTS)
-
-list-scripts: build
-	@echo "Listing available scripts..."
-	@$(TARGET_DIR)/$(BINARY_NAME) -s $(CURDIR)/scripts list
-
 clean:
 	@echo "Cleaning build artifacts..."
 	@cargo clean --manifest-path $(PROJECT_DIR)/Cargo.toml

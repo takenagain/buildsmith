@@ -11,12 +11,12 @@ pub struct ScriptInfo {
 
 /// Trait for converting a collection of paths into a collection of names.
 pub trait PathNames {
-    fn into_names(&self) -> Vec<String>;
-    fn into_script_infos(&self) -> Vec<ScriptInfo>;
+    fn into_names(self) -> Vec<String>;
+    fn into_script_infos(self) -> Vec<ScriptInfo>;
 }
 
 impl PathNames for Vec<PathBuf> {
-    fn into_names(&self) -> Vec<String> {
+    fn into_names(self) -> Vec<String> {
         self.iter()
             .map(|p| {
                 let file_name = p.file_name().map_or_else(
@@ -42,7 +42,7 @@ impl PathNames for Vec<PathBuf> {
             .collect()
     }
 
-    fn into_script_infos(&self) -> Vec<ScriptInfo> {
+    fn into_script_infos(self) -> Vec<ScriptInfo> {
         self.iter()
             .map(|p| {
                 let file_name = p.file_name().map_or_else(

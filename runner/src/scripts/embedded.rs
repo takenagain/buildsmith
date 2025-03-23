@@ -24,7 +24,7 @@ pub fn extract_embedded_scripts(os_type: OsType) -> Result<Vec<PathBuf>> {
     extract_directory(&EMBEDDED_SCRIPTS, &scripts_dir)?;
     info!("Extracted embedded scripts to: {}", scripts_dir.display());
 
-    let scripts = super::scripts::collect_scripts(Some(&scripts_dir), os_type)?;
+    let scripts = super::collector::collect_scripts(Some(&scripts_dir), os_type)?;
 
     std::mem::forget(temp_dir);
 

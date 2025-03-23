@@ -1,2 +1,2 @@
-pub mod scripts;
 pub mod cli;
+pub mod scripts;
