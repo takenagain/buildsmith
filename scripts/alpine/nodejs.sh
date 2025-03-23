@@ -14,7 +14,5 @@ export NVM_DIR="$HOME/.nvm"
 # Install Node.js LTS
 nvm install --lts
 nvm use --lts
-
-# Update npm and install global packages
-npm install -g npm@11.2.0
+npm install -g npm@latest
 npm install -g npm-check-updates

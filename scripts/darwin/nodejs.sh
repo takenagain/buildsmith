@@ -1,6 +1,5 @@
 #!/bin/bash
 
-# Install Node.js using Homebrew
 brew install node@lts
 
 # Make sure we're using the Homebrew-installed Node.js
@@ -10,8 +9,5 @@ if [[ $(uname -m) == 'arm64' ]]; then
   export PATH="/opt/homebrew/opt/node@lts/bin:$PATH"
 fi
 
-# Update npm to specific version
-npm install -g npm@11.2.0
-
-# Install global npm packages
+npm install -g npm@latest
 npm install -g npm-check-updates

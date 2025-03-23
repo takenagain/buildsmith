@@ -24,7 +24,6 @@ impl PathNames for Vec<PathBuf> {
                     |name| name.to_string_lossy().to_string(),
                 );
 
-                // Check if the path contains a platform-specific directory
                 let platform_info = p
                     .parent()
                     .and_then(|parent| parent.file_name())
@@ -51,7 +50,6 @@ impl PathNames for Vec<PathBuf> {
                     |name| name.to_string_lossy().to_string(),
                 );
 
-                // Extract OS type from parent directory
                 let os_type = p
                     .parent()
                     .and_then(|parent| parent.file_name())

@@ -26,10 +26,10 @@ export PYENV_ROOT="$HOME/.pyenv"
 eval "$(pyenv init - sh)"
 
 # Install Python versions
+pyenv install 3.13
 pyenv install 3.12
 pyenv install 3.11
-pyenv install 3.10
-pyenv global 3.11
+pyenv global 3.13
 
 # Install uv and rye
 curl -LsSf https://astral.sh/uv/install.sh | sh

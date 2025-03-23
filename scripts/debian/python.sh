@@ -19,10 +19,10 @@ sudo apt update; sudo apt install -y build-essential libssl-dev zlib1g-dev \
     libbz2-dev libreadline-dev libsqlite3-dev curl git \
     libncursesw5-dev xz-utils tk-dev libxml2-dev libxmlsec1-dev libffi-dev liblzma-dev
 
+pyenv install 3.13
 pyenv install 3.12
 pyenv install 3.11
-pyenv install 3.10
-pyenv global 3.11
+pyenv global 3.13
 
 curl -LsSf https://astral.sh/uv/install.sh | sh
 curl -sSf https://rye.astral.sh/get | bash

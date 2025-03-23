@@ -1,7 +1,8 @@
 #!/bin/bash
 
 # Install required packages via Homebrew
-brew install yubikey-agent pinentry-mac pcscd libpam-u2f
+brew install yubikey-agent pinentry-mac
+brew install --cask yubico-yubikey-manager
 
 # Set up Yubikey agent
 export SSH_AUTH_SOCK="$HOME/Library/Containers/com.filippo.yubikey-agent/Data/yubikey-agent.sock"

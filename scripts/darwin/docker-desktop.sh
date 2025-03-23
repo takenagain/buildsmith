@@ -28,6 +28,3 @@ fi
 
 echo "Note: You may need to start Docker Desktop manually for the first time to complete setup."
 echo "Docker Desktop has been installed. You may need to log out and log back in for group changes to take effect."
-
-# Make the script executable
-chmod +x "$0"

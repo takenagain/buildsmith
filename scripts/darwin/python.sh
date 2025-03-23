@@ -25,10 +25,10 @@ eval "$(pyenv init -)"
 brew install openssl readline sqlite3 xz zlib tcl-tk
 
 # Install Python versions with pyenv
+pyenv install 3.13
 pyenv install 3.12
 pyenv install 3.11
-pyenv install 3.10
-pyenv global 3.11
+pyenv global 3.13
 
 # Install modern Python tooling
 curl -LsSf https://astral.sh/uv/install.sh | sh

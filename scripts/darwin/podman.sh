@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Install podman using Homebrew
-brew install podman
+brew install podman podman-compose
 
 # Initialize podman machine (creates a VM for running containers)
 podman machine init
