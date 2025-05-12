@@ -51,7 +51,7 @@ pub fn interactive_mode(
             script_names
                 .iter()
                 .map(|name| {
-                    let script_name = name.split('/').last().unwrap_or(name);
+                    let script_name = name.rsplit('/').next().unwrap_or(name);
                     default_scripts.contains(&script_name)
                 })
                 .collect()
