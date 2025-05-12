@@ -53,7 +53,7 @@ build: check-rust
 
 install: build
 	@echo "Running $(BINARY_NAME) in interactive mode..."
-	@$(TARGET_DIR)/$(BINARY_NAME) -s $(CURDIR)/scripts interactive --all
+	@$(TARGET_DIR)/$(BINARY_NAME) -s $(CURDIR)/scripts $(if $(PROFILE),-p $(PROFILE),) interactive --all
 
 # Add a new target for simplified script running
 install-%: build

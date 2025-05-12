@@ -1,19 +1,64 @@
 use anyhow::Result;
-use dialoguer::MultiSelect;
+use dialoguer::{MultiSelect, Select};
 use log::{debug, error, info, warn};
 use std::fs;
 use std::path::PathBuf;
 
 use crate::cli::ListFormat;
+use crate::profiles::EnvironmentProfile;
 use crate::scripts::display::list_scripts;
 use crate::scripts::fs::create_temp_dir;
 use crate::scripts::models::PathNames;
 use crate::scripts::runner::run_scripts;
 
-pub fn interactive_mode(scripts: &[PathBuf], all: bool) -> Result<()> {
-    // Assume clean install, so run all scripts by default if all flag is set
-    let default_selections: Vec<bool> = vec![all; scripts.len()];
+pub fn profile_selection_mode() -> Result<EnvironmentProfile> {
+    info!("Please select an environment profile:");
+
+    let profiles = EnvironmentProfile::all();
+    let profile_names: Vec<String> = profiles.iter().map(|p| p.to_string()).collect();
+
+    let selection = Select::new()
+        .with_prompt("Select environment profile")
+        .items(&profile_names)
+        .default(0)
+        .interact()?;
+
+    info!("Selected profile: {}", profile_names[selection]);
+    Ok(profiles[selection])
+}
+
+pub fn get_profile_from_name(name: &str) -> Option<EnvironmentProfile> {
+    match name.to_lowercase().as_str() {
+        "development" | "dev" => Some(EnvironmentProfile::Development),
+        "server" | "srv" => Some(EnvironmentProfile::Server),
+        "edge" | "edgeruntime" => Some(EnvironmentProfile::EdgeRuntime),
+        "minimal" | "min" => Some(EnvironmentProfile::Minimal),
+        "custom" | "cus" => Some(EnvironmentProfile::Custom),
+        _ => None,
+    }
+}
+
+pub fn interactive_mode(
+    scripts: &[PathBuf],
+    all: bool,
+    profile: Option<EnvironmentProfile>,
+) -> Result<()> {
     let script_names: Vec<String> = scripts.to_vec().into_names();
+
+    let default_selections: Vec<bool> = match profile {
+        Some(profile) => {
+            let default_scripts = profile.get_default_scripts();
+            script_names
+                .iter()
+                .map(|name| {
+                    let script_name = name.split('/').last().unwrap_or(name);
+                    default_scripts.contains(&script_name)
+                })
+                .collect()
+        }
+        None => vec![all; scripts.len()],
+    };
+
     debug!("Showing script selection dialog");
     let selections = MultiSelect::new()
         .with_prompt("Select scripts to run (space to toggle, enter to confirm)")

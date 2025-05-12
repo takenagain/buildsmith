@@ -1,7 +1,10 @@
 use anyhow::Result;
 use clap::Parser;
 use log::{debug, info, warn};
-use runner::cli::commands::{interactive_mode, list_mode, run_specified_scripts};
+use runner::cli::commands::{
+    get_profile_from_name, interactive_mode, list_mode, profile_selection_mode,
+    run_specified_scripts,
+};
 use runner::cli::Cli;
 use runner::cli::Commands;
 use runner::scripts::collector::collect_scripts;
@@ -16,6 +19,25 @@ fn main() -> Result<()> {
     let os_info = os_info::get();
 
     info!("Detected OS: {}", os_info);
+
+    let profile = if let Some(profile_name) = &cli.profile {
+        match get_profile_from_name(profile_name) {
+            Some(p) => {
+                info!("Using environment profile: {}", p);
+                Some(p)
+            }
+            None => {
+                warn!(
+                    "Unknown profile: {}. Using interactive profile selection.",
+                    profile_name
+                );
+                Some(profile_selection_mode()?)
+            }
+        }
+    } else {
+        info!("No environment profile specified.");
+        Some(profile_selection_mode()?)
+    };
 
     // Try to collect scripts from the specified directory
     debug!("Collecting scripts from: {}", cli.scripts_dir.display());
@@ -55,7 +77,7 @@ fn main() -> Result<()> {
     debug!("Scripts: {:?}", scripts);
 
     match cli.command.unwrap_or(Commands::Interactive { all: false }) {
-        Commands::Interactive { all } => interactive_mode(&scripts, all)?,
+        Commands::Interactive { all } => interactive_mode(&scripts, all, profile)?,
         Commands::Run {
             scripts: script_names,
         } => run_specified_scripts(&scripts, script_names)?,

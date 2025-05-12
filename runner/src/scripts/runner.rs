@@ -11,8 +11,48 @@ pub fn run_scripts(
         let script = &scripts[index];
         info!("Running script: {}", script.display());
 
-        let status = std::process::Command::new("bash")
-            .arg(script)
+        let (command, args) = match script.extension().and_then(|ext| ext.to_str()) {
+            Some("ps1") => {
+                #[cfg(windows)]
+                {
+                    (
+                        "powershell",
+                        vec![
+                            "-ExecutionPolicy",
+                            "Bypass",
+                            "-File",
+                            script.to_str().unwrap(),
+                        ],
+                    )
+                }
+                #[cfg(not(windows))]
+                {
+                    warn!("PowerShell script detected but not running on Windows");
+                    (
+                        "pwsh",
+                        vec![
+                            "-ExecutionPolicy",
+                            "Bypass",
+                            "-File",
+                            script.to_str().unwrap(),
+                        ],
+                    )
+                }
+            }
+            _ => {
+                #[cfg(unix)]
+                {
+                    ("bash", vec![script.to_str().unwrap()])
+                }
+                #[cfg(windows)]
+                {
+                    ("bash", vec![script.to_str().unwrap()])
+                }
+            }
+        };
+
+        let status = std::process::Command::new(command)
+            .args(args)
             .current_dir(temp_dir)
             .spawn()
             .with_context(|| format!("Failed to execute script: {}", script.display()))?

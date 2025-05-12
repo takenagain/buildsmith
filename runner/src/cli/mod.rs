@@ -10,6 +10,9 @@ pub struct Cli {
     #[arg(short, long, default_value = "../scripts")]
     pub scripts_dir: PathBuf,
 
+    #[arg(short, long)]
+    pub profile: Option<String>,
+
     #[command(subcommand)]
     pub command: Option<Commands>,
 }
