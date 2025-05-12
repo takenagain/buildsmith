@@ -2,7 +2,7 @@ use anyhow::Result;
 use dialoguer::{MultiSelect, Select};
 use log::{debug, error, info, warn};
 use std::fs;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 use crate::cli::ListFormat;
 use crate::profiles::EnvironmentProfile;
@@ -50,8 +50,9 @@ pub fn interactive_mode(
             let default_scripts = profile.get_default_scripts();
             script_names
                 .iter()
-                .map(|name| {                    let script_name = name.rsplit('/').next().unwrap_or(name);
-                    default_scripts.contains(&script_name)
+                .map(|name| {
+                    let script_name = Path::new(name).file_name().unwrap_or_default().to_string_lossy();
+                    default_scripts.contains(&script_name.as_ref())
                 })
                 .collect()
         }
