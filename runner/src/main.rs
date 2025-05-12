@@ -20,25 +20,6 @@ fn main() -> Result<()> {
 
     info!("Detected OS: {}", os_info);
 
-    let profile = if let Some(profile_name) = &cli.profile {
-        match get_profile_from_name(profile_name) {
-            Some(p) => {
-                info!("Using environment profile: {}", p);
-                Some(p)
-            }
-            None => {
-                warn!(
-                    "Unknown profile: {}. Using interactive profile selection.",
-                    profile_name
-                );
-                Some(profile_selection_mode()?)
-            }
-        }
-    } else {
-        info!("No environment profile specified.");
-        Some(profile_selection_mode()?)
-    };
-
     // Try to collect scripts from the specified directory
     debug!("Collecting scripts from: {}", cli.scripts_dir.display());
     let scripts = collect_scripts(Some(&cli.scripts_dir), os_info.os_type());
@@ -77,10 +58,52 @@ fn main() -> Result<()> {
     debug!("Scripts: {:?}", scripts);
 
     match cli.command.unwrap_or(Commands::Interactive { all: false }) {
-        Commands::Interactive { all } => interactive_mode(&scripts, all, profile)?,
+        Commands::Interactive { all } => {
+            let profile = if let Some(profile_name) = &cli.profile {
+                match get_profile_from_name(profile_name) {
+                    Some(p) => {
+                        info!("Using environment profile: {}", p);
+                        Some(p)
+                    }
+                    None => {
+                        warn!(
+                            "Unknown profile: {}. Using interactive profile selection.",
+                            profile_name
+                        );
+                        Some(profile_selection_mode()?)
+                    }
+                }
+            } else {
+                info!("No environment profile specified.");
+                Some(profile_selection_mode()?)
+            };
+            
+            interactive_mode(&scripts, all, profile)?
+        },
         Commands::Run {
             scripts: script_names,
-        } => run_specified_scripts(&scripts, script_names)?,
+        } => {
+            let profile = if let Some(profile_name) = &cli.profile {
+                match get_profile_from_name(profile_name) {
+                    Some(p) => {
+                        info!("Using environment profile: {}", p);
+                        Some(p)
+                    }
+                    None => {
+                        warn!(
+                            "Unknown profile: {}. Using interactive profile selection.",
+                            profile_name
+                        );
+                        Some(profile_selection_mode()?)
+                    }
+                }
+            } else {
+                info!("No environment profile specified.");
+                Some(profile_selection_mode()?)
+            };
+            
+            run_specified_scripts(&scripts, script_names)?
+        },
         Commands::List { format } => list_mode(&scripts, format)?,
     }
 
