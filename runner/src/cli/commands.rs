@@ -50,8 +50,7 @@ pub fn interactive_mode(
             let default_scripts = profile.get_default_scripts();
             script_names
                 .iter()
-                .map(|name| {
-                    let script_name = name.rsplit('/').next().unwrap_or(name);
+                .map(|name| {                    let script_name = name.rsplit('/').next().unwrap_or(name);
                     default_scripts.contains(&script_name)
                 })
                 .collect()
@@ -75,7 +74,11 @@ pub fn interactive_mode(
     execute_scripts(scripts, &selections)
 }
 
-pub fn run_specified_scripts(scripts: &[PathBuf], script_names: Vec<String>) -> Result<()> {
+pub fn run_specified_scripts(
+    scripts: &[PathBuf],
+    script_names: Vec<String>,
+    _profile: Option<EnvironmentProfile>,
+) -> Result<()> {
     let mut selections = Vec::new();
     let all_script_names = scripts.to_vec().into_names();
 

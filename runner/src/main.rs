@@ -102,7 +102,7 @@ fn main() -> Result<()> {
                 Some(profile_selection_mode()?)
             };
             
-            run_specified_scripts(&scripts, script_names)?
+            run_specified_scripts(&scripts, script_names, profile)?
         },
         Commands::List { format } => list_mode(&scripts, format)?,
     }
