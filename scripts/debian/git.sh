@@ -42,3 +42,13 @@ git config --global commit.gpgsign true
 git config --global tag.gpgSign true
 
 echo "IdentityFile ~/.ssh/id_ed25519_sk_rk" >> ~/.ssh/config
+cat <<EOF >> ~/.ssh/config
+
+Host github.com
+    HostName github.com
+    User git
+    IdentityFile ~/.ssh/id_ed25519_sk_rk
+    IdentitiesOnly yes
+    AddKeysToAgent no
+
+EOF
