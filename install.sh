@@ -128,7 +128,12 @@ main() {
     make install-deps
 
     echo_info "Building and running the installer..."
-    make install
+    if [ -n "${CI:-}" ]; then
+        echo_info "CI environment detected - skipping interactive mode"
+        make build
+    else
+        make install
+    fi
 
     echo_info "Installation completed successfully!"
     echo_info "You may need to restart your shell or run 'source ~/.bashrc' (or ~/.zshrc) to ensure all environment variables are loaded."
