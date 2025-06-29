@@ -1,0 +1,76 @@
+name: Test Install Script
+
+on:
+  push:
+    branches: [main, dev]
+    paths:
+      - 'install.sh'
+      - '.github/workflows/test-install.yml'
+      - 'runner/**'
+  pull_request:
+    branches: [main, dev]
+    paths:
+      - 'install.sh'
+      - '.github/workflows/test-install.yml'
+      - 'runner/**'
+  workflow_dispatch:
+
+jobs:
+  test-install:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            distro: ubuntu
+            container: ''
+          - os: ubuntu-22.04
+            distro: ubuntu
+            container: ''
+          - os: ubuntu-latest
+            distro: debian
+            container: debian:latest
+          - os: ubuntu-latest
+            distro: debian
+            container: debian:11
+          - os: ubuntu-latest
+            distro: alpine
+            container: alpine:latest
+          - os: ubuntu-latest
+            distro: alpine
+            container: alpine:3.18
+          - os: macos-latest
+            distro: macos
+            container: ''
+          - os: macos-13
+            distro: macos
+            container: ''
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run install.sh
+        shell: bash
+        run: |
+          set -euxo pipefail
+          if [ -n "${{ matrix.container }}" ]; then
+            if [ "${{ matrix.distro }}" = "alpine" ]; then
+              docker run --rm -v "$PWD":/workspace -w /workspace ${{ matrix.container }} sh -euxc '
+                apk update && apk add sudo curl git bash make build-base && \
+                yes "" | bash ./install.sh && \
+                rustc --version && \
+                test -f runner/target/release/runner
+              '
+            else
+              docker run --rm -v "$PWD":/workspace -w /workspace ${{ matrix.container }} bash -euxc '
+                apt-get update && apt-get install -y sudo curl git build-essential make && \
+                yes "" | bash ./install.sh && \
+                rustc --version && \
+                test -f runner/target/release/runner
+              '
+            fi
+          else
+            yes "" | bash ./install.sh
+            rustc --version
+            test -f runner/target/release/runner
+          fi
