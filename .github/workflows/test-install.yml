@@ -55,22 +55,22 @@ jobs:
           set -euxo pipefail
           if [ -n "${{ matrix.container }}" ]; then
             if [ "${{ matrix.distro }}" = "alpine" ]; then
-              docker run --rm -v "$PWD":/workspace -w /workspace ${{ matrix.container }} sh -euxc '
+              docker run --rm -e CI=1 -v "$PWD":/workspace -w /workspace ${{ matrix.container }} sh -euxc '
                 apk update && apk add sudo curl git bash make build-base && \
-                yes "" | bash ./install.sh && \
+                bash ./install.sh && \
                 rustc --version && \
                 test -f runner/target/release/runner
               '
             else
-              docker run --rm -v "$PWD":/workspace -w /workspace ${{ matrix.container }} bash -euxc '
+              docker run --rm -e CI=1 -v "$PWD":/workspace -w /workspace ${{ matrix.container }} bash -euxc '
                 apt-get update && apt-get install -y sudo curl git build-essential make && \
-                yes "" | bash ./install.sh && \
+                bash ./install.sh && \
                 rustc --version && \
                 test -f runner/target/release/runner
               '
             fi
           else
-            yes "" | bash ./install.sh
+            CI=1 bash ./install.sh
             rustc --version
             test -f runner/target/release/runner
           fi
