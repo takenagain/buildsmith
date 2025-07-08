@@ -1,0 +1,6 @@
+services:
+  rust-bert:
+    build: .
+    image: rust-bert:latest
+    stdin_open: true
+    tty: true
