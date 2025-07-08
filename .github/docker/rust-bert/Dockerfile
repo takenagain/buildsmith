@@ -15,4 +15,4 @@ RUN git clone https://github.com/guillaume-be/rust-bert.git
 
 WORKDIR /workspace/rust-bert
 
-CMD ["bash", "-lc", "cargo run --example sentence_embeddings"]
+CMD ["cargo", "run", "--example", "sentence_embeddings"]
