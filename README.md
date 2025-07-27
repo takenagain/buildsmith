@@ -46,3 +46,5 @@ make lint        # Run linter
 
 - `scripts/`: Contains setup scripts
 - `runner/`: Contains the Rust runner application
+- `proxmox/`: Proxmox scripts and setup guides
+
