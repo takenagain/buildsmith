@@ -44,6 +44,8 @@ pct exec $CTID -- useradd -m -s /usr/sbin/nologin n8n
 ### 8. Prepare environment file for API keys (placeholders for now) ###
 pct exec $CTID -- bash -c "echo 'OPENAI_API_KEY=\"YOUR_OPENAI_API_KEY\"' > /etc/n8n.env"
 pct exec $CTID -- bash -c "echo 'ANTHROPIC_API_KEY=\"YOUR_ANTHROPIC_API_KEY\"' >> /etc/n8n.env"
+pct exec $CTID -- bash -c "chmod 600 /etc/n8n.env"
+pct exec $CTID -- bash -c "chown n8n:n8n /etc/n8n.env"
 
 ### 9. Create systemd service for n8n ###
 pct exec $CTID -- bash -c "cat >/etc/systemd/system/n8n.service <<'SERVICE'
