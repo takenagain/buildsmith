@@ -45,6 +45,14 @@ The container defines two users:
 | `root` | *(none)* | Access via `pct enter` or set a password with `passwd`. |
 | `n8n` | *(none)* | Runs the service and cannot log in (`/usr/sbin/nologin`). |
 
+### Accessing n8n
+
+After the script finishes it prints a URL like `http://192.0.2.10:5678`.
+Open the address in a browser. On first launch n8n prompts you to create an
+account by entering an email address and password. Choose any credentials you
+like; there is no default username or password. Use this account to log in on
+subsequent visits.
+
 ### API keys
 
 The environment file contains placeholders for the following keys:

@@ -109,4 +109,6 @@ if [ -z "$CONTAINER_IP" ]; then
     echo "Container IP address is empty" >&2
     exit 1
 fi
-echo "✅ n8n installation complete! You can now access n8n at http://$CONTAINER_IP:5678"
+echo "✅ n8n installation complete!"
+echo "Open http://$CONTAINER_IP:5678 in your browser to finish setup."
+echo "On first visit you'll be prompted to create an n8n account; there are no default credentials."
