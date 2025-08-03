@@ -14,6 +14,13 @@ Run the script on the Proxmox host as root:
 bash n8n-lxc-setup.sh
 ```
 
+By default the script chooses the next free container ID. You can override it by
+passing a custom ID as the first argument:
+
+```bash
+bash n8n-lxc-setup.sh 200   # use CTID 200
+```
+
 The script will:
 
 1. download the Ubuntu 24.04 LXC template if needed;
