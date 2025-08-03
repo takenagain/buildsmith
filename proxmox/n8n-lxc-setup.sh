@@ -3,7 +3,7 @@
 # Resources: 4 vCPU, 4096 MB RAM, 10 GB disk (adjustable)
 
 set -euo pipefail
-trap 'echo "❌ Script failed at line $LINENO." >&2' ERR
+trap 'echo "❌ Script failed at line $LINENO." >&2; exit 1' ERR
 
 ### 1. Define variables ###
 # Allow CTID to be provided as an argument or environment variable
@@ -23,19 +23,24 @@ HOSTNAME="n8n-server"         # Container hostname
 CORES=4                       # vCPU cores for the container
 MEMORY=4096                   # RAM in MB for the container
 DISK_SIZE=10                  # Disk size in GB for container rootfs
-TEMPLATE="ubuntu-24.04-standard"  # LXC template name (Ubuntu 24.04 LTS)
+TEMPLATE_BASE="ubuntu-24.04-standard"  # Base name for Ubuntu 24.04 LTS template
 STORAGE_POOL="local-lvm"      # Proxmox storage pool for the container
 
 ### 2. Download Ubuntu 24.04 LXC template if not already available ###
 pveam update
-if ! pveam available --section system | grep -q "$TEMPLATE"; then
-    echo "Downloading LXC template $TEMPLATE..."
-    pveam download local $TEMPLATE
+TEMPLATE_FULL=$(pveam available --section system | awk -v tmpl="$TEMPLATE_BASE" '$2 ~ tmpl {print $2; exit}')
+if [ -z "$TEMPLATE_FULL" ]; then
+    echo "Template $TEMPLATE_BASE not found in pveam list" >&2
+    exit 1
+fi
+if ! pveam list local | awk '{print $2}' | grep -qw "$TEMPLATE_FULL"; then
+    echo "Downloading LXC template $TEMPLATE_FULL..."
+    pveam download local "$TEMPLATE_FULL"
 fi
 
 ### 3. Create the LXC container ###
 echo "Creating LXC container $CTID ($HOSTNAME)..."
-pct create "$CTID" local:vztmpl/$TEMPLATE* -hostname "$HOSTNAME" \
+pct create "$CTID" "local:vztmpl/$TEMPLATE_FULL" -hostname "$HOSTNAME" \
     -cores "$CORES" -memory "$MEMORY" -rootfs "$STORAGE_POOL:$DISK_SIZE" \
     -net0 name=eth0,bridge=vmbr0,ip=dhcp -unprivileged 1 -features nesting=1,keyctl=1
 
