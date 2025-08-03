@@ -14,7 +14,11 @@ if [ -z "$CTID" ]; then
 fi
 
 # Ensure the chosen CTID is not already in use
-if pct list | awk 'NR>1 {print $1}' | grep -qw "$CTID" || qm list | awk 'NR>1 {print $1}' | grep -qw "$CTID"; then
+existing_ids=$( {
+    pct list | awk 'NR>1 {print $1}'
+    qm list | awk 'NR>1 {print $1}'
+} )
+if echo "$existing_ids" | grep -qw "$CTID"; then
     echo "Container ID $CTID is already in use." >&2
     exit 1
 fi
@@ -91,8 +95,18 @@ pct exec "$CTID" -- systemctl enable n8n.service
 pct exec "$CTID" -- systemctl start n8n.service
 
 # Ensure the service is running before reporting success
-pct exec "$CTID" -- systemctl is-active --quiet n8n.service
+if ! pct exec "$CTID" -- systemctl is-active --quiet n8n.service; then
+    echo "Failed to verify n8n service is running" >&2
+    exit 1
+fi
 
 # Fetch the container's IP address for the final message
-CONTAINER_IP=$(pct exec "$CTID" -- hostname -I | awk '{print $1}')
+if ! CONTAINER_IP=$(pct exec "$CTID" -- hostname -I | awk '{print $1}'); then
+    echo "Failed to determine container IP address" >&2
+    exit 1
+fi
+if [ -z "$CONTAINER_IP" ]; then
+    echo "Container IP address is empty" >&2
+    exit 1
+fi
 echo "✅ n8n installation complete! You can now access n8n at http://$CONTAINER_IP:5678"

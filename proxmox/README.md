@@ -36,6 +36,15 @@ The script will:
 Edit `/etc/n8n.env` in the container after creation to add your real API keys
 and restart the service with `systemctl restart n8n`.
 
+### Accounts
+
+The container defines two users:
+
+| User | Password | Notes |
+| ---- | -------- | ----- |
+| `root` | *(none)* | Access via `pct enter` or set a password with `passwd`. |
+| `n8n` | *(none)* | Runs the service and cannot log in (`/usr/sbin/nologin`). |
+
 ### API keys
 
 The environment file contains placeholders for the following keys:
