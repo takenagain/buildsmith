@@ -6,9 +6,9 @@ script provisions an Ubuntu 24.04 LXC container to run
 
 ## `n8n-lxc-setup.sh`
 
-`n8n-lxc-setup.sh` creates an unprivileged LXC container with 4 vCPUs and
-4&nbsp;GB of RAM, installs Node.js 18 and n8n, and configures n8n as a
-systemd service.
+`n8n-lxc-setup.sh` creates an unprivileged LXC container with 4 vCPUs,
+8&nbsp;GB of RAM, and 80&nbsp;GB of storage. It installs Node.js 18 and n8n and
+configures n8n as a systemd service.
 
 ### Usage
 

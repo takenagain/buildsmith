@@ -1,6 +1,6 @@
 #!/bin/bash
 # Proxmox LXC deployment script for n8n (Ubuntu 24.04 LTS)
-# Resources: 4 vCPU, 4096 MB RAM, 10 GB disk (adjustable)
+# Resources: 4 vCPU, 8192 MB RAM, 80 GB disk (adjustable)
 
 set -euo pipefail
 trap 'echo "❌ Script failed at line $LINENO." >&2; exit 1' ERR
@@ -25,8 +25,8 @@ fi
 
 HOSTNAME="n8n-server"         # Container hostname
 CORES=4                       # vCPU cores for the container
-MEMORY=4096                   # RAM in MB for the container
-DISK_SIZE=10                  # Disk size in GB for container rootfs
+MEMORY=8192                   # RAM in MB for the container
+DISK_SIZE=80                  # Disk size in GB for container rootfs
 TEMPLATE_BASE="ubuntu-24.04-standard"  # Base name for Ubuntu 24.04 LTS template
 STORAGE_POOL="local-lvm"      # Proxmox storage pool for the container
 
