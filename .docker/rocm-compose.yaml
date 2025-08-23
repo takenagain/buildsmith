@@ -33,6 +33,6 @@ services:
     volumes:
       - /home/frannas/repos/ai/burn:/app/burn
     # Keep container running with interactive terminal
-    stdin_open: true  # equivalent to docker run -i
-    tty: true         # equivalent to docker run -t
+    stdin_open: true # equivalent to docker run -i
+    tty: true # equivalent to docker run -t
     entrypoint: /bin/bash

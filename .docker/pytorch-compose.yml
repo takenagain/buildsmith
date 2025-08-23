@@ -1,0 +1,8 @@
+services:
+  rust-bert:
+    build:
+      context: .
+      dockerfile: ./pytorch-rocm.dockerfile
+    image: pytorch-rocm:latest
+    stdin_open: true
+    tty: true

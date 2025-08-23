@@ -1,7 +1,7 @@
 FROM docker.io/rocm/pytorch:latest
 
 # Install Rust toolchain
-RUN apt-get update && apt-get install -y --no-install-recommends curl git build-essential && \
+RUN apt-get update && apt-get install -y --no-install-recommends curl git build-essential openssl libssl-dev pkg-config && \
     curl https://sh.rustup.rs -sSf | bash -s -- -y && \
     rm -rf /var/lib/apt/lists/*
 
