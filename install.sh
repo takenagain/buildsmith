@@ -61,24 +61,24 @@ install_make() {
     echo_info "Detecting operating system..."
     echo_info "Detected OS: $os"
 
-    # Check if make is already installed
-    if command -v make &> /dev/null; then
-        echo_info "make is already installed"
+    # Check if the bootstrap dependencies are already installed
+    if command -v make &> /dev/null && command -v curl &> /dev/null; then
+        echo_info "make and curl are already installed"
         return 0
     fi
 
-    echo_info "Installing make..."
+    echo_info "Installing make and curl..."
 
     case $os in
         debian)
             run_privileged apt-get update
-            run_privileged apt-get install -y make build-essential
+            run_privileged apt-get install -y make build-essential ca-certificates curl
             ;;
         alpine)
-            run_privileged apk add --no-cache make build-base
+            run_privileged apk add --no-cache make build-base ca-certificates curl
             ;;
         redhat)
-            run_privileged yum install -y make gcc gcc-c++
+            run_privileged yum install -y make gcc gcc-c++ ca-certificates curl
             ;;
         arch)
             run_privileged pacman -Syu --needed --noconfirm base-devel ca-certificates curl git sudo
@@ -89,6 +89,18 @@ install_make() {
                 echo_info "Installing Xcode Command Line Tools..."
                 xcode-select --install
             fi
+            if ! command -v curl &> /dev/null; then
+                if command -v brew &> /dev/null; then
+                    echo_info "Installing curl with Homebrew..."
+                    brew install curl
+                    local brew_curl_prefix
+                    brew_curl_prefix="$(brew --prefix curl)"
+                    export PATH="$brew_curl_prefix/bin:$PATH"
+                else
+                    echo_error "curl is required, but Homebrew is unavailable to install it"
+                    exit 1
+                fi
+            fi
             ;;
         *)
             echo_error "Unsupported operating system: $os"
@@ -96,7 +108,12 @@ install_make() {
             ;;
     esac
 
-    echo_info "make installed successfully"
+    if ! command -v make &> /dev/null || ! command -v curl &> /dev/null; then
+        echo_error "Failed to install required bootstrap dependencies: make and curl"
+        exit 1
+    fi
+
+    echo_info "make and curl installed successfully"
 }
 
 # Install Rust

@@ -22,7 +22,7 @@ run_container() {
 
 repository_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
-run_container "ubuntu:latest" "apt-get update && apt-get install -y --no-install-recommends bash build-essential ca-certificates curl" bash
-run_container "debian:latest" "apt-get update && apt-get install -y --no-install-recommends bash build-essential ca-certificates curl" bash
+run_container "ubuntu:latest" "apt-get update && apt-get install -y --no-install-recommends bash ca-certificates curl" bash
+run_container "debian:latest" "apt-get update && apt-get install -y --no-install-recommends bash ca-certificates curl" bash
 run_container "alpine:latest" "apk add --no-cache bash ca-certificates curl" sh
-run_container "archlinux:base-devel" "pacman-key --init && pacman -Syu --needed --noconfirm bash base-devel ca-certificates curl" bash
+run_container "archlinux:base" "pacman-key --init && pacman -Syu --needed --noconfirm bash ca-certificates curl" bash

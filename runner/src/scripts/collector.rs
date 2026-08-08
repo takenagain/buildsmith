@@ -35,7 +35,13 @@ pub fn collect_scripts(scripts_dir: Option<&Path>, os_type: OsType) -> Result<Ve
     }
 
     if let Some(os_dir) = os_dir {
-        let os_specific_scripts = collect_os_specific_scripts(scripts_dir, os_dir.as_str());
+        let extension = if os_type == OsType::Windows {
+            "ps1"
+        } else {
+            "sh"
+        };
+        let os_specific_scripts =
+            collect_os_specific_scripts(scripts_dir, os_dir.as_str(), extension);
         if !os_specific_scripts.is_empty() {
             scripts.extend(os_specific_scripts);
         }
@@ -69,7 +75,7 @@ fn collect_unix_scripts(scripts_dir: &Path) -> Vec<PathBuf> {
     scripts
 }
 
-fn collect_os_specific_scripts(scripts_dir: &Path, os_dir: &str) -> Vec<PathBuf> {
+fn collect_os_specific_scripts(scripts_dir: &Path, os_dir: &str, extension: &str) -> Vec<PathBuf> {
     let mut scripts = Vec::new();
     let os_specific_dir = scripts_dir.join(os_dir);
 
@@ -87,7 +93,7 @@ fn collect_os_specific_scripts(scripts_dir: &Path, os_dir: &str) -> Vec<PathBuf>
             .into_iter()
             .filter_map(|e| e.ok())
         {
-            if entry.path().extension().is_some_and(|ext| ext == "sh") {
+            if entry.path().extension().is_some_and(|ext| ext == extension) {
                 debug!("Found OS-specific script: {}", entry.path().display());
                 scripts.push(entry.path().to_path_buf());
             }
@@ -146,5 +152,23 @@ mod tests {
                 .count(),
             1
         );
+    }
+
+    #[test]
+    fn windows_collection_includes_only_powershell_scripts() {
+        let root = tempfile::tempdir().unwrap();
+        std::fs::create_dir_all(root.path().join("unix")).unwrap();
+        std::fs::create_dir_all(root.path().join("windows")).unwrap();
+        std::fs::write(root.path().join("unix/common.sh"), "#!/bin/sh\n").unwrap();
+        std::fs::write(
+            root.path().join("windows/setup.ps1"),
+            "Write-Host 'setup'\n",
+        )
+        .unwrap();
+        std::fs::write(root.path().join("windows/setup.sh"), "#!/bin/sh\n").unwrap();
+
+        let scripts = collect_scripts(Some(root.path()), OsType::Windows).unwrap();
+
+        assert_eq!(scripts, vec![root.path().join("windows/setup.ps1")]);
     }
 }

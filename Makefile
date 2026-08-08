@@ -1,6 +1,10 @@
 # Default shell
 SHELL := /bin/bash
 
+CARGO_HOME ?= $(HOME)/.cargo
+export CARGO_HOME
+export PATH := $(CARGO_HOME)/bin:$(PATH)
+
 BINARY_NAME := runner
 PROJECT_DIR := $(CURDIR)/$(BINARY_NAME)
 TARGET_DIR := $(PROJECT_DIR)/target/release
@@ -30,7 +34,6 @@ check-rust:
 ifeq ($(RUST_CHECK),)
 	@echo "Rust is not installed. Installing Rust..."
 	@curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
-	@source "$${CARGO_HOME:-$$HOME/.cargo}/env"
 else
 	@echo "Rust is already installed"
 endif
