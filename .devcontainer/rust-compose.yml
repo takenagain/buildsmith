@@ -1,7 +1,6 @@
 services:
   vscode:
-    # TODO: replace with custom image containing optional toolchains (e.g. rust & flutter)
-    image: rust
+    image: rust:latest
     volumes:
       - ../:/workspace
       # Docker socket to access Docker server

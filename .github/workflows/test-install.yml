@@ -25,29 +25,20 @@ jobs:
           - os: ubuntu-latest
             distro: ubuntu
             container: ''
-          - os: ubuntu-22.04
-            distro: ubuntu
-            container: ''
           - os: ubuntu-latest
             distro: debian
             container: debian:latest
           - os: ubuntu-latest
-            distro: debian
-            container: debian:11
-          - os: ubuntu-latest
             distro: alpine
             container: alpine:latest
           - os: ubuntu-latest
-            distro: alpine
-            container: alpine:3.18
+            distro: arch
+            container: archlinux:base-devel
           - os: macos-latest
             distro: macos
             container: ''
-          - os: macos-13
-            distro: macos
-            container: ''
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Run install.sh
         shell: bash
@@ -58,19 +49,27 @@ jobs:
               docker run --rm -e CI=1 -v "$PWD":/workspace -w /workspace ${{ matrix.container }} sh -euxc '
                 apk update && apk add sudo curl git bash make build-base && \
                 bash ./install.sh && \
-                rustc --version && \
+                "${CARGO_HOME:-$HOME/.cargo}/bin/rustc" --version && \
+                test -f runner/target/release/runner
+              '
+            elif [ "${{ matrix.distro }}" = "arch" ]; then
+              docker run --rm -e CI=1 -v "$PWD":/workspace -w /workspace ${{ matrix.container }} bash -euxc '
+                pacman-key --init && \
+                pacman -Syu --needed --noconfirm curl ca-certificates git sudo bash make && \
+                bash ./install.sh && \
+                "${CARGO_HOME:-$HOME/.cargo}/bin/rustc" --version && \
                 test -f runner/target/release/runner
               '
             else
               docker run --rm -e CI=1 -v "$PWD":/workspace -w /workspace ${{ matrix.container }} bash -euxc '
                 apt-get update && apt-get install -y sudo curl git build-essential make && \
                 bash ./install.sh && \
-                rustc --version && \
+                "${CARGO_HOME:-$HOME/.cargo}/bin/rustc" --version && \
                 test -f runner/target/release/runner
               '
             fi
           else
             CI=1 bash ./install.sh
-            rustc --version
+            "${CARGO_HOME:-$HOME/.cargo}/bin/rustc" --version
             test -f runner/target/release/runner
           fi
