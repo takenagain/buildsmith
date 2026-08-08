@@ -212,7 +212,7 @@ Use strict mode, full `pacman -Syu --needed` transactions, and current package n
 
 - [ ] **Step 3: Implement the non-root yay path**
 
-Require a non-root caller, install `base-devel` and `git` through a full pacman transaction, clone `https://aur.archlinux.org/yay.git` into a temporary directory, and run `makepkg -si --noconfirm --needed` as the caller. Honor `INSTALL_YAY=1` only from the explicit Make target or direct script invocation; do not call it from base installation.
+Require a non-root caller, install `base-devel` and `git` through a full pacman transaction, clone `https://aur.archlinux.org/yay.git` into a temporary directory, and run `makepkg -si --noconfirm --needed` as the caller. Honor `INSTALL_YAY=1` from an explicitly opted-in base-installer invocation or direct `scripts/arch/yay.sh` invocation; do not call it from the default base installation. There is no dedicated Make target for `yay`.
 
 - [ ] **Step 4: Run static checks and stale-reference assertions**
 

@@ -59,13 +59,16 @@ INSTALL_YAY=1 bash ./install.sh
 
 ### Local Docker validation
 
-Validate the installer against current Debian, Alpine, and Arch Linux images:
+Validate the installer against current Ubuntu, Debian, Alpine, and Arch Linux
+images with the repository's full Docker matrix:
 
 ```bash
+make test-install-docker
 docker compose -f .devcontainer/rust-compose.yml config
-docker run --rm -e CI=1 -v "$PWD":/workspace -w /workspace archlinux:base-devel \
-  bash -euxo pipefail -c 'pacman-key --init; pacman -Syu --needed --noconfirm curl ca-certificates git sudo bash make; bash ./install.sh; "${CARGO_HOME:-$HOME/.cargo}/bin/rustc" --version'
 ```
+
+The Compose command validates the development container configuration; the Make
+target runs the installer and release-runner build in each current image.
 
 ## Project Structure
 

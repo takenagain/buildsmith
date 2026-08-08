@@ -12,7 +12,19 @@ $env:CHROME_EXECUTABLE = "${env:ProgramFiles}\Google\Chrome\Application\chrome.e
 [System.Environment]::SetEnvironmentVariable('CHROME_EXECUTABLE', $env:CHROME_EXECUTABLE, 'User')
 
 # Install Flutter Version Manager (FVM)
-Invoke-WebRequest -Uri "https://raw.githubusercontent.com/leoafarias/fvm/main/packages/cli/scripts/install.ps1" -UseBasicParsing | Invoke-Expression
+$fvmInstaller = Join-Path ([System.IO.Path]::GetTempPath()) ("fvm-install-{0}.ps1" -f [guid]::NewGuid().ToString('N'))
+try {
+    Invoke-WebRequest -Uri "https://raw.githubusercontent.com/leoafarias/fvm/main/scripts/install.ps1" -OutFile $fvmInstaller -UseBasicParsing
+    & $fvmInstaller
+    if ($LASTEXITCODE -ne 0) {
+        throw "FVM installer exited with code $LASTEXITCODE."
+    }
+}
+finally {
+    if (Test-Path -LiteralPath $fvmInstaller) {
+        Remove-Item -Force -LiteralPath $fvmInstaller
+    }
+}
 
 # Add FVM to PATH
 $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")

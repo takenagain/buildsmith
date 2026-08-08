@@ -11,7 +11,11 @@ export CHROME_EXECUTABLE="/Applications/Chromium.app/Contents/MacOS/Chromium"
 echo "CHROME_EXECUTABLE=$CHROME_EXECUTABLE" | tee -a ~/.zshrc
 
 # Install Flutter Version Manager (FVM)
-curl -fsSL https://raw.githubusercontent.com/leoafarias/fvm/refs/heads/main/scripts/install.sh | bash
+fvm_installer="$(mktemp "${TMPDIR:-/tmp}/fvm-install.XXXXXX")"
+trap 'rm -f "$fvm_installer"' EXIT
+curl -fsSL --retry 3 --retry-all-errors -o "$fvm_installer" \
+    https://fvm.app/install.sh
+bash "$fvm_installer"
 export PATH="$HOME/.fvm/bin:$PATH"
 fvm install stable
 if ! grep -q "alias flutter=" ~/.zshrc; then

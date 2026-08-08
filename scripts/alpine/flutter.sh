@@ -11,7 +11,11 @@ if [ -z "$java_package" ]; then
 fi
 apk add --no-cache bash curl gcompat git "$java_package" unzip xz zip
 
-curl -fsSL https://raw.githubusercontent.com/leoafarias/fvm/main/scripts/install.sh | bash
+fvm_installer="$(mktemp "${TMPDIR:-/tmp}/fvm-install.XXXXXX")"
+trap 'rm -f "$fvm_installer"' EXIT
+curl -fsSL --retry 3 --retry-all-errors -o "$fvm_installer" \
+    https://fvm.app/install.sh
+bash "$fvm_installer"
 export PATH="$HOME/.fvm/bin:$PATH"
 
 if ! grep -q 'alias flutter=' "$HOME/.profile" 2>/dev/null; then

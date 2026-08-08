@@ -12,6 +12,7 @@ on:
     paths:
       - "runner/**"
       - "scripts/**" 
+      - ".github/workflows/release.yml"
   workflow_dispatch: 
 
 env:
