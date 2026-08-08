@@ -81,10 +81,18 @@ existing user change that disables `make install-deps` inside `install.sh`.
 - Update fixed nvm, ProtonVPN, glibc, ROCm, and other vendor bootstrap values to
   the latest documented values and checksums, or use an official latest URL when
   the vendor supports one.
-- Update GitHub Actions to the current documented action lines: checkout 6,
-  cache 5, upload-artifact 7, download-artifact 5, and softprops release 3.
+- Install AMD ROCm 7.14.0 through the current `amdgpu-install` 31.40.1 package
+  (`amdgpu-install_31.40.1.314001-1_all.deb`). Select AMD's Ubuntu repository
+  path from `/etc/os-release`, allow only `resolute`, `noble`, or `jammy`, and
+  fail before downloading on any other distribution or codename. Install the
+  documented ROCm-only use case with automatic GFX selection and no DKMS.
+- Update GitHub Actions to the current documented action lines: checkout 7,
+  cache 6, upload-artifact 7, download-artifact 8, and softprops release 3.
 - Remove obsolete CI matrix entries for old Ubuntu, Debian, Alpine, and macOS
-  releases; use current runner/container channels and add Arch coverage.
+  releases; use current runner/container channels and add Arch coverage. Linux
+  container jobs use the same clean base images and minimal prerequisites as
+  `scripts/test-install-docker.sh`, including `archlinux:base` rather than a
+  base image with a preinstalled build toolchain.
 
 ### Local Docker validation
 
@@ -105,6 +113,9 @@ existing user change that disables `make install-deps` inside `install.sh`.
 - `yay` is never built as root and is never installed implicitly.
 - Downloaded vendor bootstrap files retain checksum verification when the
   vendor publishes a checksum.
+- The ROCm installer creates its downloaded package under a temporary
+  directory, removes that directory on every exit path, and rejects missing or
+  unsupported `/etc/os-release` data instead of guessing a repository.
 - Docker tests mount the repository read-only where possible and keep build
   state in disposable container paths.
 - Existing user changes are preserved and unrelated files are not reverted.
@@ -124,12 +135,20 @@ freshly on the resulting tree:
 6. Local Docker installer validation, including the Arch image and runner
    artifact assertion.
 
+For the bounded GitHub Actions and ROCm follow-up, run `bash -n` on the ROCm
+script, static assertions for every requested action major and ROCm installer
+contract, and `git diff --check`. A GPU execution test is intentionally out of
+scope because the installer can be validated statically without changing host
+GPU drivers or requiring GPU hardware.
+
 ## Current upstream references consulted
 
 - Rust stable channel: https://rust-lang.github.io/rustup/basics.html
 - Flutter stable channel: https://docs.flutter.dev/install
 - Node.js current release policy: https://nodejs.org/en/about/previous-releases
-- ROCm 7.2.4 installation: https://rocm.docs.amd.com/projects/install-on-linux/en/docs-7.2.4/install/quick-start.html
+- ROCm 7.14.0 installation: https://rocm.docs.amd.com/en/docs-7.14.0/install/rocm.html
+- AMDGPU installer 31.40.1 package index:
+  https://repo.radeon.com/amdgpu-install/31.40.1/ubuntu/
 - Proton VPN Debian/Ubuntu installation: https://protonvpn.com/support/cli-debian-ubuntu
 - GitHub Actions checkout/cache/artifact/release documentation:
   https://github.com/actions/checkout,

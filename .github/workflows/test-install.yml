@@ -30,7 +30,7 @@ jobs:
         include:
           - os: ubuntu-latest
             distro: ubuntu
-            container: ''
+            container: ubuntu:latest
           - os: ubuntu-latest
             distro: debian
             container: debian:latest
@@ -39,12 +39,12 @@ jobs:
             container: alpine:latest
           - os: ubuntu-latest
             distro: arch
-            container: archlinux:base-devel
+            container: archlinux:base
           - os: macos-latest
             distro: macos
             container: ''
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - name: Run install.sh
         shell: bash
@@ -52,23 +52,23 @@ jobs:
           set -euxo pipefail
           if [ -n "${{ matrix.container }}" ]; then
             if [ "${{ matrix.distro }}" = "alpine" ]; then
-              docker run --rm -e CI=1 -v "$PWD":/workspace -w /workspace ${{ matrix.container }} sh -euxc '
-                apk update && apk add sudo curl git bash ca-certificates && \
+              docker run --pull=always --rm -e CI=1 -v "$PWD":/workspace -w /workspace ${{ matrix.container }} sh -euxc '
+                apk add --no-cache bash ca-certificates curl && \
                 bash ./install.sh && \
                 "${CARGO_HOME:-$HOME/.cargo}/bin/rustc" --version && \
                 test -x runner/target/release/runner
               '
             elif [ "${{ matrix.distro }}" = "arch" ]; then
-              docker run --rm -e CI=1 -v "$PWD":/workspace -w /workspace ${{ matrix.container }} bash -euxc '
+              docker run --pull=always --rm -e CI=1 -v "$PWD":/workspace -w /workspace ${{ matrix.container }} bash -euxc '
                 pacman-key --init && \
-                pacman -Syu --needed --noconfirm curl ca-certificates git sudo bash make && \
+                pacman -Syu --needed --noconfirm bash ca-certificates curl && \
                 bash ./install.sh && \
                 "${CARGO_HOME:-$HOME/.cargo}/bin/rustc" --version && \
                 test -x runner/target/release/runner
               '
             else
-              docker run --rm -e CI=1 -v "$PWD":/workspace -w /workspace ${{ matrix.container }} bash -euxc '
-                apt-get update && apt-get install -y sudo curl git build-essential make && \
+              docker run --pull=always --rm -e CI=1 -v "$PWD":/workspace -w /workspace ${{ matrix.container }} bash -euxc '
+                apt-get update && apt-get install -y --no-install-recommends bash ca-certificates curl && \
                 bash ./install.sh && \
                 "${CARGO_HOME:-$HOME/.cargo}/bin/rustc" --version && \
                 test -x runner/target/release/runner
