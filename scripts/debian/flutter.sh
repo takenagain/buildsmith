@@ -30,7 +30,8 @@ if ! grep -Fqx 'alias flutter="fvm flutter"' "$HOME/.bashrc" 2>/dev/null; then
     printf '%s\n' 'alias flutter="fvm flutter"' >> "$HOME/.bashrc"
 fi
 
-fvm stable
+fvm install stable
+fvm global stable
 
 sudo apt install -y default-jdk android-tools-adb android-tools-fastboot
 

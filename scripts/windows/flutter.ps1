@@ -29,9 +29,13 @@ if (-not $fvmCommand) {
 }
 
 # Install the current stable Flutter channel.
-fvm stable
+fvm install stable
 if ($LASTEXITCODE -ne 0) {
-    throw "FVM failed to activate stable Flutter with exit code $LASTEXITCODE."
+    throw "FVM failed to install stable Flutter with exit code $LASTEXITCODE."
+}
+fvm global stable
+if ($LASTEXITCODE -ne 0) {
+    throw "FVM failed to set stable Flutter globally with exit code $LASTEXITCODE."
 }
 
 # Install Android Studio using Chocolatey

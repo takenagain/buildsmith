@@ -27,7 +27,8 @@ fi
 if ! grep -Fqx 'alias flutter="fvm flutter"' "$HOME/.zshrc" 2>/dev/null; then
     printf '%s\n' 'alias flutter="fvm flutter"' >> "$HOME/.zshrc"
 fi
-fvm stable
+fvm install stable
+fvm global stable
 
 # Install Android SDK and the current Homebrew JDK channel.
 brew install openjdk android-platform-tools

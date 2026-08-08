@@ -29,4 +29,5 @@ if ! grep -Fqx 'alias flutter="fvm flutter"' "$HOME/.profile" 2>/dev/null; then
     printf '%s\n' 'alias flutter="fvm flutter"' >> "$HOME/.profile"
 fi
 
-fvm stable
+fvm install stable
+fvm global stable
