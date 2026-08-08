@@ -62,3 +62,29 @@ list, so it was deliberately left unchanged.
 
 PowerShell was unavailable locally, so a PowerShell parser check could not be
 run. The task's required shell syntax checks completed successfully.
+
+## Fix round
+
+### Findings addressed
+
+- `scripts/alpine/python.sh` is now in scope. It uses Alpine's current
+  `python3`, `py3-pip`, and `pipx` packages, installs Poetry through pipx and
+  uv through Astral's installer, and contains no pyenv Python minor pins or
+  Rye bootstrap. The script remains POSIX-shell compatible.
+- Proton VPN now creates its downloaded repository package with
+  `mktemp --suffix=.deb`, so `apt` receives a recognized local Debian package
+  path while retaining the existing 1.0.8 URL and SHA-256 verification.
+- The Darwin installer no longer invokes pip against the Homebrew-managed
+  Python interpreter; Homebrew, pipx, Poetry, and uv remain the supported
+  tooling path.
+
+### Fix-round verification
+
+- `dash -n` passed for all modified Alpine POSIX shell scripts; `bash -n`
+  passed for every modified Bash script, including Proton VPN and Darwin
+  Python.
+- Focused stale scans passed: no pyenv minor pins, pyenv bootstrap, Rye URL, or
+  Homebrew-Python pip upgrade remains in the fixed scripts.
+- A safe `mktemp -u --suffix=.deb` validation produced a `.deb`-suffixed path,
+  matching the Proton VPN script's `mktemp --suffix=.deb` invocation.
+- `git diff --check` passed and `install.sh` remains unchanged.
