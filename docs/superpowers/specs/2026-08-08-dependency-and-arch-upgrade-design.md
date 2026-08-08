@@ -68,8 +68,8 @@ existing user change that disables `make install-deps` inside `install.sh`.
 
 ### Current applications, platforms, and images
 
-- Remove the Flutter 2.8.1 legacy install from every script and documentation;
-  install only the current stable channel through FVM.
+- Remove the legacy Flutter pin from every script and documentation; install
+  only the current stable channel through FVM.
 - Replace fixed Node.js and npm patch pins with the current Node.js channel,
   using `setup_current.x`, `nvm install node`, `nvm use node`, Windows' latest
   channel, and `npm@latest`; install n8n with `n8n@latest`.

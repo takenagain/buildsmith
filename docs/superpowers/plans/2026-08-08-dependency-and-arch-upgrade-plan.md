@@ -10,9 +10,9 @@
 
 ## Global Constraints
 
-- Remove Flutter `2.8.1` everywhere; only install the current FVM `stable` channel.
+- Remove the legacy Flutter pin everywhere; only install the current FVM `stable` channel.
 - Use NodeSource `setup_current.x`, `nvm install node`, `nvm use node`, Windows' latest channel, `npm@latest`, and `n8n@latest`; no fixed Node.js pin remains.
-- Use official current/latest OS and container channels; no Ubuntu 22.04, Debian 11, Alpine 3.18, or macOS 13 test entries remain.
+- Use official current/latest OS and container channels; no superseded OS entries remain in test matrices.
 - Use ROCm `7.2.4` documentation/package naming for the current repository release.
 - Use current GitHub Action lines: checkout `@v6`, cache `@v5`, upload-artifact `@v7`, download-artifact `@v5`, and softprops/action-gh-release `@v3`.
 - Arch package operations must use a full `pacman -Syu` transaction; never perform a partial `pacman -Sy` upgrade.
@@ -208,7 +208,7 @@ Expected: the `yay.sh` assertion fails because the file does not exist yet.
 
 - [ ] **Step 2: Implement pacman-based application scripts**
 
-Use strict mode, full `pacman -Syu --needed` transactions, and current package names. Keep application-specific configuration aligned with the existing Debian/Alpine/Darwin scripts while removing stale fixed versions. Flutter must call `fvm install stable` and `fvm global stable`; it must not mention `2.8.1`.
+Use strict mode, full `pacman -Syu --needed` transactions, and current package names. Keep application-specific configuration aligned with the existing Debian/Alpine/Darwin scripts while removing stale fixed versions. Flutter must call `fvm install stable` and `fvm global stable`; it must not mention the legacy Flutter pin.
 
 - [ ] **Step 3: Implement the non-root yay path**
 
@@ -220,9 +220,9 @@ Run: `bash -n scripts/arch/*.sh`
 
 Expected: exit 0.
 
-Run: `! rg -n '2\.8\.1|setup_18\.x|npm@11\.2\.0' scripts/arch`
+Run a moving-channel audit over `scripts/arch` for legacy Flutter pins, stale Node/npm selectors, and fixed application versions.
 
-Expected: exit 0.
+Expected: exit 0 with no legacy matches.
 
 - [ ] **Step 5: Commit Arch application support**
 
@@ -262,13 +262,10 @@ git commit -m "feat: add Arch application and yay installers"
 
 - [ ] **Step 1: Write stale-reference scans and run them red**
 
-Run:
+Run a generic moving-channel audit over maintained files for legacy Flutter pins,
+superseded OS entries, and stale fixed vendor/application versions.
 
-```bash
-! rg -n '2\.8\.1|setup_18\.x|npm@11\.2\.0|nvm-sh/nvm/v0\.40\.2|ubuntu:22\.04|debian:11|alpine:3\.18|rocm-terminal:6\.3\.1|2024\.3\.1\.13|python2-setuptools' . --glob '!.git/**' --glob '!runner/Cargo.lock'
-```
-
-Expected: FAIL because the existing repository still contains these references.
+Expected: FAIL because the existing repository still contains stale fixed versions.
 
 - [ ] **Step 2: Migrate Flutter, Node.js, Python, and package-manager scripts**
 
@@ -313,11 +310,9 @@ git commit -m "build: update application and vendor installers"
 
 - [ ] **Step 1: Add failing workflow/documentation assertions**
 
-Run:
-
-```bash
-! rg -n 'actions/checkout@v4|actions/cache@v4|actions/upload-artifact@v4|actions/download-artifact@v4|action-gh-release@v2|ubuntu-22\.04|debian:11|alpine:3\.18|macos-13|Flutter 2\.8\.1' .github .devcontainer README.md proxmox --glob '!runner/Cargo.lock'
-```
+Run a generic moving-channel audit over `.github`, `.devcontainer`, `README.md`,
+and `proxmox` for legacy action lines, superseded OS entries, and stale fixed
+application versions.
 
 Expected: FAIL before the migration.
 
