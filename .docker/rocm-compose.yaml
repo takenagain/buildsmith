@@ -18,7 +18,7 @@ services:
     tty: true
 
   rocm-terminal:
-    image: rocm/rocm-terminal:6.3.1
+    image: rocm/rocm-terminal:latest
     devices:
       - /dev/kfd:/dev/kfd
       - /dev/dri:/dev/dri

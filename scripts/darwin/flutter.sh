@@ -12,6 +12,7 @@ echo "CHROME_EXECUTABLE=$CHROME_EXECUTABLE" | tee -a ~/.zshrc
 
 # Install Flutter Version Manager (FVM)
 curl -fsSL https://raw.githubusercontent.com/leoafarias/fvm/refs/heads/main/scripts/install.sh | bash
+export PATH="$HOME/.fvm/bin:$PATH"
 fvm install stable
 if ! grep -q "alias flutter=" ~/.zshrc; then
     printf '%s\n' \

@@ -1,4 +1,4 @@
-FROM ubuntu:22.04
+FROM ubuntu:latest
 
 ADD ../scripts ./scripts
 ADD install.sh .

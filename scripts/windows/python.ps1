@@ -18,20 +18,7 @@ python -m pip install --user pipx
 python -m pipx ensurepath
 pipx install poetry
 
-# Install pyenv-win
-choco install -y pyenv-win
-
-# Refresh environment variables
-refreshenv
-
-# Install Python versions
-pyenv install 3.12.0
-pyenv install 3.11.0
-pyenv install 3.10.0
-pyenv global 3.11.0
-
-# Install modern Python tooling
+# Install current Python tooling.
 Invoke-WebRequest -Uri https://astral.sh/uv/install.ps1 -UseBasicParsing | Invoke-Expression
-Invoke-WebRequest -Uri https://rye.astral.sh/get | Invoke-Expression
 
 Write-Host "Python environment setup complete!"

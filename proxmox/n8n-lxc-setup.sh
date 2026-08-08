@@ -1,5 +1,5 @@
 #!/bin/bash
-# Proxmox LXC deployment script for n8n (Ubuntu 24.04 LTS)
+# Proxmox LXC deployment script for n8n (latest available Ubuntu LTS)
 # Resources: 4 vCPU, 8192 MB RAM, 80 GB disk (adjustable)
 
 set -euo pipefail
@@ -27,14 +27,15 @@ HOSTNAME="n8n-server"         # Container hostname
 CORES=4                       # vCPU cores for the container
 MEMORY=8192                   # RAM in MB for the container
 DISK_SIZE=80                  # Disk size in GB for container rootfs
-TEMPLATE_BASE="ubuntu-24.04-standard"  # Base name for Ubuntu 24.04 LTS template
 STORAGE_POOL="local-lvm"      # Proxmox storage pool for the container
 
-### 2. Download Ubuntu 24.04 LXC template if not already available ###
+### 2. Download the newest available Ubuntu LTS LXC template if needed ###
 pveam update
-TEMPLATE_FULL=$(pveam available --section system | awk -v tmpl="$TEMPLATE_BASE" '$2 ~ tmpl {print $2; exit}')
+TEMPLATE_FULL=$(pveam available --section system | \
+    awk '$2 ~ /^ubuntu-[0-9][02468][.]04-standard_/ { print $2 }' | \
+    sort -V | tail -n 1)
 if [ -z "$TEMPLATE_FULL" ]; then
-    echo "Template $TEMPLATE_BASE not found in pveam list" >&2
+    echo "No Ubuntu LTS template found in the pveam list" >&2
     exit 1
 fi
 if ! pveam list local | awk '{print $2}' | grep -qw "$TEMPLATE_FULL"; then
@@ -52,15 +53,15 @@ pct create "$CTID" "local:vztmpl/$TEMPLATE_FULL" -hostname "$HOSTNAME" \
 pct start "$CTID"
 echo "Container $CTID started. Installing n8n and dependencies..."
 
-### 5. Update apt and install Node.js (v18 LTS) & build tools inside container ###
+### 5. Update apt and install the current Node.js LTS and build tools ###
 pct exec "$CTID" -- apt-get update
 pct exec "$CTID" -- apt-get upgrade -y
 pct exec "$CTID" -- apt-get install -y curl gnupg build-essential
-pct exec "$CTID" -- bash -c "curl -fsSL https://deb.nodesource.com/setup_18.x | bash -"
+pct exec "$CTID" -- bash -c "curl -fsSL https://deb.nodesource.com/setup_lts.x | bash -"
 pct exec "$CTID" -- apt-get install -y nodejs
 
 ### 6. Install n8n globally using npm ###
-pct exec "$CTID" -- npm install -g n8n
+pct exec "$CTID" -- npm install -g n8n@latest
 
 ### 7. Create a dedicated n8n user ###
 pct exec "$CTID" -- useradd -m -s /usr/sbin/nologin n8n

@@ -1,14 +1,14 @@
 # Proxmox Scripts
 
 This directory contains Proxmox helper scripts and setup guides. The first
-script provisions an Ubuntu 24.04 LXC container to run
+script provisions an LXC container from the newest available Ubuntu LTS template to run
 [n8n](https://n8n.io/) without Docker.
 
 ## `n8n-lxc-setup.sh`
 
 `n8n-lxc-setup.sh` creates an unprivileged LXC container with 4 vCPUs,
-8&nbsp;GB of RAM, and 80&nbsp;GB of storage. It installs Node.js 18 and n8n and
-configures n8n as a systemd service.
+8&nbsp;GB of RAM, and 80&nbsp;GB of storage. It installs the current Node.js LTS and
+n8n@latest, and configures n8n as a systemd service.
 
 ### Usage
 
@@ -27,7 +27,7 @@ bash n8n-lxc-setup.sh 200   # use CTID 200
 
 The script will:
 
-1. download the latest Ubuntu 24.04 LXC template if needed;
+1. select and download the highest-version Ubuntu LTS LXC template available from `pveam` if needed;
 2. create the container with DHCP networking on `vmbr0`;
 3. install Node.js and n8n inside the container;
 4. create `/etc/n8n.env` with placeholders for API keys;

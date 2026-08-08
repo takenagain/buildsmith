@@ -14,8 +14,7 @@ Invoke-WebRequest -Uri "https://raw.githubusercontent.com/leoafarias/fvm/main/pa
 # Add FVM to PATH
 $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
 
-# Install Flutter versions
-fvm install 2.8.1  # used for legacy KW mobile, soon to be removed
+# Install the current stable Flutter channel.
 fvm install stable
 fvm global stable
 

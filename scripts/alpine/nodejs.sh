@@ -1,10 +1,11 @@
 #!/bin/sh
 
-# Install curl
-apk add curl
+set -eu
 
-# Install nvm
-curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.2/install.sh | bash
+apk add --no-cache bash curl
+
+# Install the current nvm release.
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.6/install.sh | bash
 
 # Configure nvm in current session
 export NVM_DIR="$HOME/.nvm"

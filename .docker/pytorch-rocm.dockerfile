@@ -1,4 +1,4 @@
-FROM docker.io/rocm/pytorch:latest
+FROM rocm/pytorch:latest
 
 # Install Rust toolchain
 RUN apt-get update && apt-get install -y --no-install-recommends curl git build-essential openssl libssl-dev pkg-config && \
@@ -6,7 +6,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends curl git build-
     rm -rf /var/lib/apt/lists/*
 
 ENV PATH="/root/.cargo/bin:${PATH}"
-ENV LIBTORCH=/opt/conda/envs/py_3.12/lib/python3.12/site-packages/torch
+RUN TORCH_PATH="$(python3 -c 'import os, torch; print(os.path.dirname(torch.__file__))')" && \
+    ln -s "$TORCH_PATH" /opt/libtorch
+
+ENV LIBTORCH=/opt/libtorch
 ENV LD_LIBRARY_PATH=${LIBTORCH}/lib:$LD_LIBRARY_PATH
 
 WORKDIR /workspace
