@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -e
+set -euo pipefail
 
 # Install required dependencies using homebrew
 brew install curl git unzip coreutils xz
@@ -20,21 +20,60 @@ if ! grep -q "alias flutter=" ~/.zshrc; then
         'alias flutter="fvm flutter"' >> ~/.zshrc
 fi
 
-# Install Android SDK and Java
-brew install openjdk@21
-sudo ln -sfn $(brew --prefix)/opt/openjdk@21/libexec/openjdk.jdk /Library/Java/JavaVirtualMachines/openjdk-21.jdk
-export JAVA_HOME=$(/usr/libexec/java_home -v 21)
-echo "export JAVA_HOME=$JAVA_HOME" | tee -a ~/.zshrc
-echo "export PATH=\$PATH:\$JAVA_HOME/bin" | tee -a ~/.zshrc
-java -version
-brew install android-platform-tools
+# Install Android SDK and the current Homebrew JDK channel.
+brew install openjdk android-platform-tools
 brew install --cask android-studio
+
+resolve_java_home() {
+    local candidate
+
+    for candidate in \
+        "/Applications/Android Studio.app/Contents/jbr/Contents/Home" \
+        "$HOME/Library/Application Support/Google"/AndroidStudio*/jbr/Contents/Home \
+        "$(brew --prefix openjdk)/libexec/openjdk.jdk/Contents/Home"; do
+        if [ -x "$candidate/bin/java" ]; then
+            printf '%s\n' "$candidate"
+            return 0
+        fi
+    done
+
+    if [ -x /usr/libexec/java_home ]; then
+        candidate="$(/usr/libexec/java_home)"
+        if [ -x "$candidate/bin/java" ]; then
+            printf '%s\n' "$candidate"
+            return 0
+        fi
+    fi
+
+    echo "Unable to locate a valid Android Studio or system Java installation." >&2
+    return 1
+}
+
+export JAVA_HOME="$(resolve_java_home)"
+export PATH="$JAVA_HOME/bin:$PATH"
+printf 'export JAVA_HOME="%s"\n' "$JAVA_HOME" | tee -a ~/.zshrc
+printf 'export PATH="$PATH:$JAVA_HOME/bin"\n' | tee -a ~/.zshrc
+java -version
 echo "Finished installing Android Studio"
 echo "Please open Android Studio and complete the setup wizard to install Android SDK"
 
 # Run flutter doctor to ensure that everything is configured and installed
 fvm global stable
-yes | fvm flutter doctor --android-licenses
+
+accept_android_licenses() {
+    local flutter_status
+
+    set +e
+    set +o pipefail
+    yes | fvm flutter doctor --android-licenses
+    flutter_status="${PIPESTATUS[1]}"
+    set -o pipefail
+    set -e
+
+    return "$flutter_status"
+}
+
+accept_android_licenses
 fvm flutter doctor -v
 
 echo "Flutter installation completed for macOS"

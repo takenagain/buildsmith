@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -euo pipefail
+
 # Install the current Python and related tools via Homebrew.
 brew install python pipx readline
 

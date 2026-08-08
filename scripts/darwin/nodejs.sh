@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -euo pipefail
+
 brew install node
 
 # Make sure we're using the current Homebrew-installed Node.js.

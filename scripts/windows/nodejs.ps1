@@ -1,14 +1,16 @@
 #!/usr/bin/env pwsh
 
+$ErrorActionPreference = 'Stop'
+
 # Install NVM for Windows using Chocolatey
 choco install -y nvm.portable
 
 # Refresh environment variables
 refreshenv
 
-# Install and use LTS version of Node.js
-nvm install lts
-nvm use lts
+# Install and use the latest available Node.js release.
+nvm install latest
+nvm use latest
 
 # Update npm and install global packages
 npm install -g npm@latest

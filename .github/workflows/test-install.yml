@@ -5,12 +5,18 @@ on:
     branches: [main, dev]
     paths:
       - 'install.sh'
+      - 'Makefile'
+      - 'scripts/**'
+      - 'scripts/test-install-docker.sh'
       - '.github/workflows/test-install.yml'
       - 'runner/**'
   pull_request:
     branches: [main, dev]
     paths:
       - 'install.sh'
+      - 'Makefile'
+      - 'scripts/**'
+      - 'scripts/test-install-docker.sh'
       - '.github/workflows/test-install.yml'
       - 'runner/**'
   workflow_dispatch:
@@ -47,10 +53,10 @@ jobs:
           if [ -n "${{ matrix.container }}" ]; then
             if [ "${{ matrix.distro }}" = "alpine" ]; then
               docker run --rm -e CI=1 -v "$PWD":/workspace -w /workspace ${{ matrix.container }} sh -euxc '
-                apk update && apk add sudo curl git bash make build-base && \
+                apk update && apk add sudo curl git bash ca-certificates && \
                 bash ./install.sh && \
                 "${CARGO_HOME:-$HOME/.cargo}/bin/rustc" --version && \
-                test -f runner/target/release/runner
+                test -x runner/target/release/runner
               '
             elif [ "${{ matrix.distro }}" = "arch" ]; then
               docker run --rm -e CI=1 -v "$PWD":/workspace -w /workspace ${{ matrix.container }} bash -euxc '
@@ -58,18 +64,18 @@ jobs:
                 pacman -Syu --needed --noconfirm curl ca-certificates git sudo bash make && \
                 bash ./install.sh && \
                 "${CARGO_HOME:-$HOME/.cargo}/bin/rustc" --version && \
-                test -f runner/target/release/runner
+                test -x runner/target/release/runner
               '
             else
               docker run --rm -e CI=1 -v "$PWD":/workspace -w /workspace ${{ matrix.container }} bash -euxc '
                 apt-get update && apt-get install -y sudo curl git build-essential make && \
                 bash ./install.sh && \
                 "${CARGO_HOME:-$HOME/.cargo}/bin/rustc" --version && \
-                test -f runner/target/release/runner
+                test -x runner/target/release/runner
               '
             fi
           else
             CI=1 bash ./install.sh
             "${CARGO_HOME:-$HOME/.cargo}/bin/rustc" --version
-            test -f runner/target/release/runner
+            test -x runner/target/release/runner
           fi

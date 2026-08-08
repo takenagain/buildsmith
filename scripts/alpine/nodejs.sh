@@ -12,8 +12,8 @@ export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
 
-# Install Node.js LTS
-nvm install --lts
-nvm use --lts
+# Install the latest available Node.js release.
+nvm install node
+nvm use node
 npm install -g npm@latest
 npm install -g npm-check-updates

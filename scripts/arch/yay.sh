@@ -2,14 +2,14 @@
 
 set -euo pipefail
 
-if [ "$(id -u)" -eq 0 ]; then
-    echo "yay must be built as a non-root user; do not run this script as root." >&2
-    exit 1
-fi
-
 if [ "${INSTALL_YAY:-}" != "1" ]; then
     echo "yay installation is opt-in; rerun with INSTALL_YAY=1." >&2
     exit 0
+fi
+
+if [ "$(id -u)" -eq 0 ]; then
+    echo "yay must be built as a non-root user; do not run this script as root." >&2
+    exit 1
 fi
 
 sudo pacman -Syu --needed --noconfirm base-devel git

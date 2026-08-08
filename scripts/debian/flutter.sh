@@ -1,11 +1,11 @@
 #!/bin/bash
 
-set -e
+set -euo pipefail
 
 sudo apt install -y curl git unzip xz-utils zip libglu1-mesa \
   libc6:amd64 libstdc++6:amd64 lib32z1 libbz2-1.0:amd64 \
   clang cmake git ninja-build pkg-config libgtk-3-dev \
-  liblzma-dev libstdc++-12-dev libsecret-1-dev libsecret-1-0
+  liblzma-dev libstdc++-dev libsecret-1-dev libsecret-1-0
 
 echo "Installing chromium and setting CHROME_EXECUTABLE variable"
 sudo snap install chromium
@@ -23,17 +23,59 @@ if ! grep -q "alias flutter=" ~/.bashrc; then
         'alias flutter="fvm flutter"' >> ~/.bashrc
 fi
 
-sudo apt install -y openjdk-21-jdk openjdk-21-jre android-tools-adb android-tools-fastboot
-export JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64
-export PATH=$PATH:$JAVA_HOME/bin
-java -version
+sudo apt install -y default-jdk android-tools-adb android-tools-fastboot
 
 # Android Studio's Snap channel tracks the supported current release.
 sudo snap install android-studio --classic
 
 echo "Finished installing Android Studio"
 
+resolve_java_home() {
+    local candidate java_path
+
+    for candidate in \
+        /snap/android-studio/current/android-studio/jbr \
+        /opt/android-studio/jbr \
+        "$HOME/.local/share/Google"/AndroidStudio*/jbr; do
+        if [ -x "$candidate/bin/java" ]; then
+            printf '%s\n' "$candidate"
+            return 0
+        fi
+    done
+
+    if command -v java >/dev/null 2>&1; then
+        java_path="$(readlink -f "$(command -v java)")"
+        candidate="$(dirname "$(dirname "$java_path")")"
+        if [ -x "$candidate/bin/java" ]; then
+            printf '%s\n' "$candidate"
+            return 0
+        fi
+    fi
+
+    echo "Unable to locate a valid Android Studio or system Java installation." >&2
+    return 1
+}
+
+export JAVA_HOME="$(resolve_java_home)"
+export PATH="$JAVA_HOME/bin:$PATH"
+printf 'Using JAVA_HOME=%s\n' "$JAVA_HOME"
+java -version
+
 # Run flutter doctor to ensure that everything is configured and installed
 fvm global stable
-yes | fvm flutter doctor --android-licenses
+
+accept_android_licenses() {
+    local flutter_status
+
+    set +e
+    set +o pipefail
+    yes | fvm flutter doctor --android-licenses
+    flutter_status="${PIPESTATUS[1]}"
+    set -o pipefail
+    set -e
+
+    return "$flutter_status"
+}
+
+accept_android_licenses
 fvm flutter doctor -v

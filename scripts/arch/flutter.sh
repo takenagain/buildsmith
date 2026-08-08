@@ -12,5 +12,19 @@ fi
 
 fvm install stable
 fvm global stable
-yes | fvm flutter doctor --android-licenses
+
+accept_android_licenses() {
+    local flutter_status
+
+    set +e
+    set +o pipefail
+    yes | fvm flutter doctor --android-licenses
+    flutter_status="${PIPESTATUS[1]}"
+    set -o pipefail
+    set -e
+
+    return "$flutter_status"
+}
+
+accept_android_licenses
 fvm flutter doctor -v

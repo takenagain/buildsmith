@@ -31,7 +31,8 @@ run_privileged() {
 
 # Detect OS
 detect_os() {
-    if [[ "$OSTYPE" == "linux-gnu"* ]]; then
+    case "$(uname -s)" in
+    Linux)
         if [ -f /etc/debian_version ]; then
             echo "debian"
         elif [ -f /etc/alpine-release ]; then
@@ -43,11 +44,14 @@ detect_os() {
         else
             echo "unknown-linux"
         fi
-    elif [[ "$OSTYPE" == "darwin"* ]]; then
+        ;;
+    Darwin)
         echo "darwin"
-    else
+        ;;
+    *)
         echo "unknown"
-    fi
+        ;;
+    esac
 }
 
 # Install make based on OS
@@ -77,7 +81,7 @@ install_make() {
             run_privileged yum install -y make gcc gcc-c++
             ;;
         arch)
-            run_privileged pacman -Syu --needed --noconfirm base-devel ca-certificates curl git
+            run_privileged pacman -Syu --needed --noconfirm base-devel ca-certificates curl git sudo
             ;;
         darwin)
             # On macOS, make comes with Xcode Command Line Tools

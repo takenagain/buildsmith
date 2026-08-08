@@ -1,5 +1,7 @@
 #!/usr/bin/env pwsh
 
+$ErrorActionPreference = 'Stop'
+
 # Check if chocolatey is installed, install if not
 if (!(Get-Command choco -ErrorAction SilentlyContinue)) {
     Set-ExecutionPolicy Bypass -Scope Process -Force

@@ -53,11 +53,11 @@ pct create "$CTID" "local:vztmpl/$TEMPLATE_FULL" -hostname "$HOSTNAME" \
 pct start "$CTID"
 echo "Container $CTID started. Installing n8n and dependencies..."
 
-### 5. Update apt and install the current Node.js LTS and build tools ###
+### 5. Update apt and install the latest Node.js and build tools ###
 pct exec "$CTID" -- apt-get update
 pct exec "$CTID" -- apt-get upgrade -y
 pct exec "$CTID" -- apt-get install -y curl gnupg build-essential
-pct exec "$CTID" -- bash -c "curl -fsSL https://deb.nodesource.com/setup_lts.x | bash -"
+pct exec "$CTID" -- bash -c "curl -fsSL https://deb.nodesource.com/setup_current.x | bash -"
 pct exec "$CTID" -- apt-get install -y nodejs
 
 ### 6. Install n8n globally using npm ###

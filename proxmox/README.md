@@ -7,7 +7,7 @@ script provisions an LXC container from the newest available Ubuntu LTS template
 ## `n8n-lxc-setup.sh`
 
 `n8n-lxc-setup.sh` creates an unprivileged LXC container with 4 vCPUs,
-8&nbsp;GB of RAM, and 80&nbsp;GB of storage. It installs the current Node.js LTS and
+8&nbsp;GB of RAM, and 80&nbsp;GB of storage. It installs the latest Node.js release and
 the latest n8n release at provisioning time, then configures n8n as a systemd
 service.
 

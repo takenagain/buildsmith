@@ -1,5 +1,7 @@
 #!/usr/bin/env pwsh
 
+$ErrorActionPreference = 'Stop'
+
 # Install required dependencies
 choco install -y git unzip curl
 winget install -e --id Google.Chrome
@@ -21,12 +23,26 @@ fvm global stable
 # Install Android Studio using Chocolatey
 choco install -y androidstudio
 
-# Install OpenJDK 21
-choco install -y openjdk21
-
-# Set JAVA_HOME
-$javaHome = "C:\Program Files\OpenJDK\openjdk-21"
+# Android Studio ships the supported JDK; use it before falling back to any
+# system Java installation already available on the machine.
+$javaHomeCandidates = @(
+    (Join-Path $env:ProgramFiles 'Android\Android Studio\jbr'),
+    (Join-Path $env:LOCALAPPDATA 'Programs\Android Studio\jbr')
+)
+$javaHome = $javaHomeCandidates |
+    Where-Object { Test-Path (Join-Path $_ 'bin\java.exe') } |
+    Select-Object -First 1
+if (-not $javaHome) {
+    $javaCommand = Get-Command java.exe -ErrorAction SilentlyContinue
+    if ($javaCommand) {
+        $javaHome = Split-Path -Parent (Split-Path -Parent $javaCommand.Path)
+    }
+}
+if (-not $javaHome -or -not (Test-Path (Join-Path $javaHome 'bin\java.exe'))) {
+    throw 'Unable to locate a valid Android Studio or system Java installation.'
+}
 [System.Environment]::SetEnvironmentVariable('JAVA_HOME', $javaHome, 'Machine')
+$env:JAVA_HOME = $javaHome
 $env:Path = "$javaHome\bin;" + $env:Path
 [System.Environment]::SetEnvironmentVariable('Path', $env:Path, 'Machine')
 

@@ -3,7 +3,7 @@
 A collection of scripts to set up development environments with a simple runner interface.
 
 The installer uses current upstream channels at install time: stable Rust and
-Flutter, the current Node.js LTS, and current package-manager releases.
+Flutter, the latest Node.js release, and current package-manager releases.
 Supported Linux distributions include Debian/Ubuntu, Alpine, Red Hat-family
 systems, and Arch Linux.
 
