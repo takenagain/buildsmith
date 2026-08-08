@@ -15,6 +15,8 @@ install-deps:
 			bash $(CURDIR)/scripts/debian/apt.sh; \
 		elif [ -f /etc/alpine-release ]; then \
 			sh $(CURDIR)/scripts/alpine/apk.sh; \
+		elif [ -f /etc/arch-release ] || grep -qx 'ID=arch' /etc/os-release 2>/dev/null; then \
+			bash $(CURDIR)/scripts/arch/pacman.sh; \
 		fi; \
 	elif [ "$(shell uname -s)" = "Darwin" ]; then \
 		bash $(CURDIR)/scripts/darwin/brew.sh; \
@@ -35,14 +37,8 @@ endif
 
 install-rust:
 	@echo "Installing Rust..."
-	@if [ "$(shell uname -s)" = "Linux" ]; then \
-		if [ -f /etc/debian_version ]; then \
-			bash $(CURDIR)/scripts/debian/rust.sh; \
-		elif [ -f /etc/alpine-release ]; then \
-			sh $(CURDIR)/scripts/alpine/rust.sh; \
-		fi; \
-	elif [ "$(shell uname -s)" = "Darwin" ]; then \
-		bash $(CURDIR)/scripts/darwin/rust.sh; \
+	@if [ "$(shell uname -s)" = "Linux" ] || [ "$(shell uname -s)" = "Darwin" ]; then \
+		bash $(CURDIR)/scripts/unix/rust.sh; \
 	else \
 		echo "Unsupported OS"; exit 1; \
 	fi

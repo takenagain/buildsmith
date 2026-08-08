@@ -21,6 +21,14 @@ echo_warning() {
     echo -e "${YELLOW}[WARNING]${NC} $1"
 }
 
+run_privileged() {
+    if [ "$(id -u)" -eq 0 ]; then
+        "$@"
+    else
+        sudo "$@"
+    fi
+}
+
 # Detect OS
 detect_os() {
     if [[ "$OSTYPE" == "linux-gnu"* ]]; then
@@ -30,6 +38,8 @@ detect_os() {
             echo "alpine"
         elif [ -f /etc/redhat-release ]; then
             echo "redhat"
+        elif [ -f /etc/arch-release ] || grep -qx 'ID=arch' /etc/os-release 2>/dev/null; then
+            echo "arch"
         else
             echo "unknown-linux"
         fi
@@ -57,14 +67,17 @@ install_make() {
 
     case $os in
         debian)
-            sudo apt-get update
-            sudo apt-get install -y make build-essential
+            run_privileged apt-get update
+            run_privileged apt-get install -y make build-essential
             ;;
         alpine)
-            sudo apk add --no-cache make build-base
+            run_privileged apk add --no-cache make build-base
             ;;
         redhat)
-            sudo yum install -y make gcc gcc-c++
+            run_privileged yum install -y make gcc gcc-c++
+            ;;
+        arch)
+            run_privileged pacman -Syu --needed --noconfirm base-devel ca-certificates curl git
             ;;
         darwin)
             # On macOS, make comes with Xcode Command Line Tools
@@ -84,6 +97,11 @@ install_make() {
 
 # Install Rust
 install_rust() {
+    local cargo_home="${CARGO_HOME:-$HOME/.cargo}"
+    local CARGO_BIN_DIR="$cargo_home/bin"
+
+    export PATH="$CARGO_BIN_DIR:$PATH"
+
     echo_info "Checking for Rust installation..."
 
     if command -v rustc &> /dev/null; then
@@ -97,7 +115,9 @@ install_rust() {
     curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
 
     # Source cargo environment
-    source "$HOME/.cargo/env"
+    if [ -f "$cargo_home/env" ]; then
+        source "$cargo_home/env"
+    fi
 
     echo_info "Rust installed successfully (version: $(rustc --version))"
 }
@@ -119,13 +139,16 @@ main() {
     install_rust
 
     # Ensure cargo is in PATH for the current session
-    if [ -f "$HOME/.cargo/env" ]; then
-        source "$HOME/.cargo/env"
+    local cargo_home="${CARGO_HOME:-$HOME/.cargo}"
+    local CARGO_BIN_DIR="$cargo_home/bin"
+    export PATH="$CARGO_BIN_DIR:$PATH"
+    if [ -f "$cargo_home/env" ]; then
+        source "$cargo_home/env"
     fi
 
     # Run make commands
     echo_info "Installing system dependencies..."
-    make install-deps
+    #make install-deps
 
     echo_info "Building and running the installer..."
     if [ -n "${CI:-}" ]; then
