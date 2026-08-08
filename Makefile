@@ -6,7 +6,7 @@ PROJECT_DIR := $(CURDIR)/$(BINARY_NAME)
 TARGET_DIR := $(PROJECT_DIR)/target/release
 RUST_CHECK := $(shell which rustc)
 
-.PHONY: all check-rust install-rust build install run-scripts run-% list-scripts list-scripts-json list-scripts-csv list-scripts-table clean deps test fmt fmt-check lint install-deps
+.PHONY: all check-rust install-rust build install run-scripts run-% list-scripts list-scripts-json list-scripts-csv list-scripts-table clean deps test fmt fmt-check lint install-deps test-install-docker
 
 install-deps:
 	@echo "Installing system dependencies..."
@@ -79,3 +79,6 @@ fmt-check: check-rust
 lint: check-rust
 	@echo "Running clippy..."
 	@cargo clippy --manifest-path $(PROJECT_DIR)/Cargo.toml -- -D warnings
+
+test-install-docker:
+	@bash $(CURDIR)/scripts/test-install-docker.sh
