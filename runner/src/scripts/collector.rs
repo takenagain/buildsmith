@@ -18,13 +18,13 @@ pub fn collect_scripts(scripts_dir: Option<&Path>, os_type: OsType) -> Result<Ve
     let mut scripts = Vec::new();
 
     let os_dir = match resolve_os_script_directory(os_type) {
-        Ok(value) => value,
+        Ok(value) => Some(value),
         Err(error) => {
             warn!(
                 "Error resolving OS script directory: {}. Attempting generic unix scripts.",
                 error
             );
-            String::from("unix")
+            None
         }
     };
 
@@ -34,9 +34,11 @@ pub fn collect_scripts(scripts_dir: Option<&Path>, os_type: OsType) -> Result<Ve
             .for_each(|script| scripts.push(script));
     }
 
-    let os_specific_scripts = collect_os_specific_scripts(scripts_dir, os_dir.as_str());
-    if !os_specific_scripts.is_empty() {
-        scripts.extend(os_specific_scripts);
+    if let Some(os_dir) = os_dir {
+        let os_specific_scripts = collect_os_specific_scripts(scripts_dir, os_dir.as_str());
+        if !os_specific_scripts.is_empty() {
+            scripts.extend(os_specific_scripts);
+        }
     }
 
     scripts.sort_by(|a, b| {
@@ -105,6 +107,7 @@ fn resolve_os_script_directory(os_type: OsType) -> anyhow::Result<String> {
         OsType::Ubuntu | OsType::Pop | OsType::Raspbian | OsType::Kali | OsType::Debian => "debian",
         OsType::Macos => "darwin",
         OsType::Alpine => "alpine",
+        OsType::Arch => "arch",
         OsType::Windows => "windows",
         _ => {
             return Err(Error::msg(format!(
@@ -114,4 +117,34 @@ fn resolve_os_script_directory(os_type: OsType) -> anyhow::Result<String> {
         }
     };
     Ok(os_dir.to_string())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn arch_uses_the_arch_script_directory() {
+        assert_eq!(resolve_os_script_directory(OsType::Arch).unwrap(), "arch");
+    }
+
+    #[test]
+    fn arch_collection_does_not_duplicate_unix_scripts() {
+        let root = tempfile::tempdir().unwrap();
+        std::fs::create_dir_all(root.path().join("unix")).unwrap();
+        std::fs::create_dir_all(root.path().join("arch")).unwrap();
+        std::fs::write(root.path().join("unix/common.sh"), "#!/bin/sh\n").unwrap();
+        std::fs::write(root.path().join("arch/arch.sh"), "#!/bin/sh\n").unwrap();
+
+        let scripts = collect_scripts(Some(root.path()), OsType::Arch).unwrap();
+
+        assert_eq!(scripts.len(), 2);
+        assert_eq!(
+            scripts
+                .iter()
+                .filter(|path| path.ends_with("common.sh"))
+                .count(),
+            1
+        );
+    }
 }
