@@ -12,26 +12,27 @@ $env:CHROME_EXECUTABLE = "${env:ProgramFiles}\Google\Chrome\Application\chrome.e
 [System.Environment]::SetEnvironmentVariable('CHROME_EXECUTABLE', $env:CHROME_EXECUTABLE, 'User')
 
 # Install Flutter Version Manager (FVM)
-$fvmInstaller = Join-Path ([System.IO.Path]::GetTempPath()) ("fvm-install-{0}.ps1" -f [guid]::NewGuid().ToString('N'))
-try {
-    Invoke-WebRequest -Uri "https://raw.githubusercontent.com/leoafarias/fvm/main/scripts/install.ps1" -OutFile $fvmInstaller -UseBasicParsing
-    & $fvmInstaller
-    if ($LASTEXITCODE -ne 0) {
-        throw "FVM installer exited with code $LASTEXITCODE."
-    }
-}
-finally {
-    if (Test-Path -LiteralPath $fvmInstaller) {
-        Remove-Item -Force -LiteralPath $fvmInstaller
-    }
+choco install fvm -y
+if ($LASTEXITCODE -ne 0) {
+    throw "Chocolatey failed to install FVM with exit code $LASTEXITCODE."
 }
 
-# Add FVM to PATH
-$env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
+# Refresh PATH and verify that the Chocolatey shim is available.
+$pathParts = @(
+    [System.Environment]::GetEnvironmentVariable('Path', 'Machine')
+    [System.Environment]::GetEnvironmentVariable('Path', 'User')
+) | Where-Object { $_ }
+$env:Path = $pathParts -join ';'
+$fvmCommand = Get-Command fvm -CommandType Application -ErrorAction SilentlyContinue
+if (-not $fvmCommand) {
+    throw 'FVM is unavailable after refreshing PATH.'
+}
 
 # Install the current stable Flutter channel.
-fvm install stable
-fvm global stable
+fvm stable
+if ($LASTEXITCODE -ne 0) {
+    throw "FVM failed to activate stable Flutter with exit code $LASTEXITCODE."
+}
 
 # Install Android Studio using Chocolatey
 choco install -y androidstudio

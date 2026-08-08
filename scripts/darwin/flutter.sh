@@ -11,18 +11,23 @@ export CHROME_EXECUTABLE="/Applications/Chromium.app/Contents/MacOS/Chromium"
 echo "CHROME_EXECUTABLE=$CHROME_EXECUTABLE" | tee -a ~/.zshrc
 
 # Install Flutter Version Manager (FVM)
+export FVM_INSTALL_DIR="$HOME/fvm"
 fvm_installer="$(mktemp "${TMPDIR:-/tmp}/fvm-install.XXXXXX")"
 trap 'rm -f "$fvm_installer"' EXIT
 curl -fsSL --retry 3 --retry-all-errors -o "$fvm_installer" \
     https://fvm.app/install.sh
 bash "$fvm_installer"
-export PATH="$HOME/.fvm/bin:$PATH"
-fvm install stable
-if ! grep -q "alias flutter=" ~/.zshrc; then
-    printf '%s\n' \
-        'export PATH="$HOME/.fvm/bin:$PATH"' \
-        'alias flutter="fvm flutter"' >> ~/.zshrc
+export PATH="$HOME/fvm/bin:$PATH"
+if ! grep -Fqx 'export FVM_INSTALL_DIR="$HOME/fvm"' "$HOME/.zshrc" 2>/dev/null; then
+    printf '%s\n' 'export FVM_INSTALL_DIR="$HOME/fvm"' >> "$HOME/.zshrc"
 fi
+if ! grep -Fqx 'export PATH="$HOME/fvm/bin:$PATH"' "$HOME/.zshrc" 2>/dev/null; then
+    printf '%s\n' 'export PATH="$HOME/fvm/bin:$PATH"' >> "$HOME/.zshrc"
+fi
+if ! grep -Fqx 'alias flutter="fvm flutter"' "$HOME/.zshrc" 2>/dev/null; then
+    printf '%s\n' 'alias flutter="fvm flutter"' >> "$HOME/.zshrc"
+fi
+fvm stable
 
 # Install Android SDK and the current Homebrew JDK channel.
 brew install openjdk android-platform-tools
@@ -60,9 +65,6 @@ printf 'export PATH="$PATH:$JAVA_HOME/bin"\n' | tee -a ~/.zshrc
 java -version
 echo "Finished installing Android Studio"
 echo "Please open Android Studio and complete the setup wizard to install Android SDK"
-
-# Run flutter doctor to ensure that everything is configured and installed
-fvm global stable
 
 accept_android_licenses() {
     local flutter_status

@@ -11,18 +11,22 @@ if [ -z "$java_package" ]; then
 fi
 apk add --no-cache bash curl gcompat git "$java_package" unzip xz zip
 
+export FVM_INSTALL_DIR="$HOME/fvm"
 fvm_installer="$(mktemp "${TMPDIR:-/tmp}/fvm-install.XXXXXX")"
 trap 'rm -f "$fvm_installer"' EXIT
 curl -fsSL --retry 3 --retry-all-errors -o "$fvm_installer" \
     https://fvm.app/install.sh
 bash "$fvm_installer"
-export PATH="$HOME/.fvm/bin:$PATH"
+export PATH="$HOME/fvm/bin:$PATH"
 
-if ! grep -q 'alias flutter=' "$HOME/.profile" 2>/dev/null; then
-    printf '%s\n' \
-        'export PATH="$HOME/.fvm/bin:$PATH"' \
-        'alias flutter="fvm flutter"' >> "$HOME/.profile"
+if ! grep -Fqx 'export FVM_INSTALL_DIR="$HOME/fvm"' "$HOME/.profile" 2>/dev/null; then
+    printf '%s\n' 'export FVM_INSTALL_DIR="$HOME/fvm"' >> "$HOME/.profile"
+fi
+if ! grep -Fqx 'export PATH="$HOME/fvm/bin:$PATH"' "$HOME/.profile" 2>/dev/null; then
+    printf '%s\n' 'export PATH="$HOME/fvm/bin:$PATH"' >> "$HOME/.profile"
+fi
+if ! grep -Fqx 'alias flutter="fvm flutter"' "$HOME/.profile" 2>/dev/null; then
+    printf '%s\n' 'alias flutter="fvm flutter"' >> "$HOME/.profile"
 fi
 
-fvm install stable
-fvm global stable
+fvm stable

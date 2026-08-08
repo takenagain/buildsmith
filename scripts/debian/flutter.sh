@@ -5,27 +5,32 @@ set -euo pipefail
 sudo apt install -y curl git unzip xz-utils zip libglu1-mesa \
   libc6:amd64 libstdc++6:amd64 lib32z1 libbz2-1.0:amd64 \
   clang cmake git ninja-build pkg-config libgtk-3-dev \
-  liblzma-dev libstdc++-dev libsecret-1-dev libsecret-1-0
+  liblzma-dev g++ libsecret-1-dev libsecret-1-0
 
 echo "Installing chromium and setting CHROME_EXECUTABLE variable"
 sudo snap install chromium
 export CHROME_EXECUTABLE=/snap/bin/chromium
 echo "CHROME_EXECUTABLE=$CHROME_EXECUTABLE" | tee -a ~/.bashrc
     
+export FVM_INSTALL_DIR="$HOME/fvm"
 fvm_installer="$(mktemp "${TMPDIR:-/tmp}/fvm-install.XXXXXX")"
 trap 'rm -f "$fvm_installer"' EXIT
 curl -fsSL --retry 3 --retry-all-errors -o "$fvm_installer" \
   https://fvm.app/install.sh
 bash "$fvm_installer"
-export PATH="$HOME/.fvm/bin:$PATH"
+export PATH="$HOME/fvm/bin:$PATH"
 
-fvm install stable
-
-if ! grep -q "alias flutter=" ~/.bashrc; then
-    printf '%s\n' \
-        'export PATH="$HOME/.fvm/bin:$PATH"' \
-        'alias flutter="fvm flutter"' >> ~/.bashrc
+if ! grep -Fqx 'export FVM_INSTALL_DIR="$HOME/fvm"' "$HOME/.bashrc" 2>/dev/null; then
+    printf '%s\n' 'export FVM_INSTALL_DIR="$HOME/fvm"' >> "$HOME/.bashrc"
 fi
+if ! grep -Fqx 'export PATH="$HOME/fvm/bin:$PATH"' "$HOME/.bashrc" 2>/dev/null; then
+    printf '%s\n' 'export PATH="$HOME/fvm/bin:$PATH"' >> "$HOME/.bashrc"
+fi
+if ! grep -Fqx 'alias flutter="fvm flutter"' "$HOME/.bashrc" 2>/dev/null; then
+    printf '%s\n' 'alias flutter="fvm flutter"' >> "$HOME/.bashrc"
+fi
+
+fvm stable
 
 sudo apt install -y default-jdk android-tools-adb android-tools-fastboot
 
@@ -64,9 +69,6 @@ export JAVA_HOME="$(resolve_java_home)"
 export PATH="$JAVA_HOME/bin:$PATH"
 printf 'Using JAVA_HOME=%s\n' "$JAVA_HOME"
 java -version
-
-# Run flutter doctor to ensure that everything is configured and installed
-fvm global stable
 
 accept_android_licenses() {
     local flutter_status
