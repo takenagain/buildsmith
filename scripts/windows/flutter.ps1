@@ -1,6 +1,7 @@
 #!/usr/bin/env pwsh
 
 $ErrorActionPreference = 'Stop'
+$PSNativeCommandUseErrorActionPreference = $true
 
 # Install required dependencies
 choco install -y git unzip curl

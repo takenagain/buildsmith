@@ -1,6 +1,7 @@
 #!/usr/bin/env pwsh
 
 $ErrorActionPreference = 'Stop'
+$PSNativeCommandUseErrorActionPreference = $true
 
 # Install NVM for Windows using Chocolatey
 choco install -y nvm.portable

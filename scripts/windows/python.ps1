@@ -1,6 +1,7 @@
 #!/usr/bin/env pwsh
 
 $ErrorActionPreference = 'Stop'
+$PSNativeCommandUseErrorActionPreference = $true
 
 # Check if chocolatey is installed, install if not
 if (!(Get-Command choco -ErrorAction SilentlyContinue)) {

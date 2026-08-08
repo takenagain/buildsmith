@@ -57,7 +57,17 @@ echo "Container $CTID started. Installing n8n and dependencies..."
 pct exec "$CTID" -- apt-get update
 pct exec "$CTID" -- apt-get upgrade -y
 pct exec "$CTID" -- apt-get install -y curl gnupg build-essential
-pct exec "$CTID" -- bash -c "curl -fsSL https://deb.nodesource.com/setup_current.x | bash -"
+pct exec "$CTID" -- bash -c '
+set -euo pipefail
+setup_script=$(mktemp)
+cleanup() {
+    rm -f "$setup_script"
+}
+trap cleanup EXIT
+curl -fsSL --retry 3 --retry-all-errors -o "$setup_script" \
+    https://deb.nodesource.com/setup_current.x
+bash "$setup_script"
+'
 pct exec "$CTID" -- apt-get install -y nodejs
 
 ### 6. Install n8n globally using npm ###

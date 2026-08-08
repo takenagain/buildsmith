@@ -11,7 +11,7 @@
 ## Global Constraints
 
 - Remove Flutter `2.8.1` everywhere; only install the current FVM `stable` channel.
-- Use NodeSource `setup_lts.x`, `nvm install --lts`, `npm@latest`, and `n8n@latest`; no Node.js 18 pin remains.
+- Use NodeSource `setup_current.x`, `nvm install node`, `nvm use node`, Windows' latest channel, `npm@latest`, and `n8n@latest`; no fixed Node.js pin remains.
 - Use official current/latest OS and container channels; no Ubuntu 22.04, Debian 11, Alpine 3.18, or macOS 13 test entries remain.
 - Use ROCm `7.2.4` documentation/package naming for the current repository release.
 - Use current GitHub Action lines: checkout `@v6`, cache `@v5`, upload-artifact `@v7`, download-artifact `@v5`, and softprops/action-gh-release `@v3`.
@@ -256,7 +256,7 @@ git commit -m "feat: add Arch application and yay installers"
 
 **Interfaces:**
 - All maintained installers resolve current versions through official channels or current documented bootstrap values.
-- Proxmox selects the newest Ubuntu LTS template returned by `pveam` and installs Node.js through `setup_lts.x`, then `n8n@latest`.
+- Proxmox selects the newest Ubuntu LTS template returned by `pveam` and installs Node.js through `setup_current.x`, then `n8n@latest`.
 - ROCm uses the documented 7.2.4 Ubuntu Noble bootstrap artifact and Python 3 package names.
 - Docker images use official latest/current tags and dynamically discover the PyTorch libtorch path instead of embedding an old Python minor path.
 
@@ -272,7 +272,7 @@ Expected: FAIL because the existing repository still contains these references.
 
 - [ ] **Step 2: Migrate Flutter, Node.js, Python, and package-manager scripts**
 
-Remove legacy Flutter installs; use current stable FVM only. Use current nvm release bootstrap, `nvm install --lts`, `npm install -g npm@latest`, and dynamic current Python selection/package-manager installs. Preserve platform-specific package-manager semantics.
+Remove legacy Flutter installs; use current stable FVM only. Use current nvm release bootstrap, `nvm install node`, `nvm use node`, `npm install -g npm@latest`, and dynamic current Python selection/package-manager installs. Preserve platform-specific package-manager semantics.
 
 - [ ] **Step 3: Migrate vendor installers and checksums**
 
@@ -280,7 +280,7 @@ Update ProtonVPN to the current documented `protonvpn-stable-release_1.0.8_all.d
 
 - [ ] **Step 4: Migrate Proxmox and Docker definitions**
 
-Select the highest Ubuntu LTS template from `pveam available` using version-aware sorting, update NodeSource to `setup_lts.x`, install `n8n@latest`, and update documentation to describe the dynamic LTS selection. Use current official Docker tags, `rocm-terminal:latest`, and a stable `/opt/libtorch` symlink populated by inspecting the installed Torch package.
+Select the highest Ubuntu LTS template from `pveam available` using version-aware sorting, update NodeSource to `setup_current.x`, install `n8n@latest`, and update documentation to describe the dynamic LTS selection. Use current official Docker tags, `rocm-terminal:latest`, and a stable `/opt/libtorch` symlink populated by inspecting the installed Torch package.
 
 - [ ] **Step 5: Re-run syntax and stale scans**
 
@@ -316,7 +316,7 @@ git commit -m "build: update application and vendor installers"
 Run:
 
 ```bash
-! rg -n 'actions/checkout@v4|actions/cache@v4|actions/upload-artifact@v4|actions/download-artifact@v4|action-gh-release@v2|ubuntu-22\.04|debian:11|alpine:3\.18|macos-13|Flutter 2\.8\.1|Node\.js 18' .github .devcontainer README.md proxmox --glob '!runner/Cargo.lock'
+! rg -n 'actions/checkout@v4|actions/cache@v4|actions/upload-artifact@v4|actions/download-artifact@v4|action-gh-release@v2|ubuntu-22\.04|debian:11|alpine:3\.18|macos-13|Flutter 2\.8\.1' .github .devcontainer README.md proxmox --glob '!runner/Cargo.lock'
 ```
 
 Expected: FAIL before the migration.
@@ -402,7 +402,7 @@ Run `bash -n` for every modified shell script, PowerShell parser checks where `p
 
 - [ ] **Step 3: Run the repository-wide latest/stale audit**
 
-Search maintained files for all removed pins: Flutter 2.8.1, Node 18/setup_18.x, npm 11.2.0, nvm 0.40.2, Ubuntu 22.04, Debian 11, Alpine 3.18, ROCm terminal 6.3.1, old Android Studio 2024.3.1.13, old ProtonVPN 1.0.6, and old ROCm 5.x/6.x values. Review every remaining version-like match manually and classify it as a current value, a protocol/schema version, or unrelated metadata.
+Search maintained files for all removed legacy pins and selectors, including Flutter, Node.js, npm, nvm, Ubuntu, Debian, Alpine, ROCm terminal, Android Studio, ProtonVPN, and older ROCm values. Review every remaining version-like match manually and classify it as a current value, a protocol/schema version, or unrelated metadata.
 
 - [ ] **Step 4: Inspect the final diff and preserve user changes**
 

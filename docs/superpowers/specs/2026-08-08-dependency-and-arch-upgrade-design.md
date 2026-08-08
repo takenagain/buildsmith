@@ -11,7 +11,7 @@ installer in disposable Docker containers.
 ## Approach
 
 Use current-at-install-time upstream channels wherever the vendor provides a
-supported moving channel: Rust stable, Flutter stable, Node.js LTS, npm latest,
+supported moving channel: Rust stable, Flutter stable, current Node.js, npm latest,
 n8n latest, package-manager packages, official `latest`/rolling container tags,
 and the current GitHub Actions major lines. Keep exact values only where Cargo
 requires a lockfile or a vendor documents a versioned bootstrap artifact and
@@ -70,8 +70,9 @@ existing user change that disables `make install-deps` inside `install.sh`.
 
 - Remove the Flutter 2.8.1 legacy install from every script and documentation;
   install only the current stable channel through FVM.
-- Replace fixed Node.js 18 and npm patch pins with the current Node.js LTS
-  channel and `npm@latest`; install n8n with `n8n@latest`.
+- Replace fixed Node.js and npm patch pins with the current Node.js channel,
+  using `setup_current.x`, `nvm install node`, `nvm use node`, Windows' latest
+  channel, and `npm@latest`; install n8n with `n8n@latest`.
 - Replace stale Ubuntu, Debian, Alpine, and ROCm references with their current
   official channels/releases. Select the newest available Ubuntu LTS template
   dynamically for Proxmox rather than hard-coding an old template name.
@@ -127,7 +128,7 @@ freshly on the resulting tree:
 
 - Rust stable channel: https://rust-lang.github.io/rustup/basics.html
 - Flutter stable channel: https://docs.flutter.dev/install
-- Node.js release policy and LTS status: https://nodejs.org/en/about/previous-releases
+- Node.js current release policy: https://nodejs.org/en/about/previous-releases
 - ROCm 7.2.4 installation: https://rocm.docs.amd.com/projects/install-on-linux/en/docs-7.2.4/install/quick-start.html
 - Proton VPN Debian/Ubuntu installation: https://protonvpn.com/support/cli-debian-ubuntu
 - GitHub Actions checkout/cache/artifact/release documentation:
