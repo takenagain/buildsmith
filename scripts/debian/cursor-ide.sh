@@ -46,6 +46,8 @@ check_dependencies() {
     fi
 }
 
+check_dependencies
+
 # Create temporary directory
 TEMP_DIR=$(mktemp -d)
 trap 'rm -rf "$TEMP_DIR"' EXIT
@@ -67,7 +69,12 @@ case $ARCH in
 esac
 
 # URLs and file paths
-APPIMAGE_URL="https://downloader.cursor.sh/linux/appImage/$ARCH_URL"
+DOWNLOAD_API_URL="https://www.cursor.com/api/download?platform=linux-${ARCH_URL}&releaseTrack=stable"
+APPIMAGE_URL="$(curl -fsSL --retry 3 --retry-all-errors "$DOWNLOAD_API_URL" | sed -n 's/.*"downloadUrl":"\([^"]*\)".*/\1/p')"
+if [ -z "$APPIMAGE_URL" ]; then
+    print_error "Cursor's current download API returned no Linux AppImage URL"
+    exit 1
+fi
 ICON_URL="https://us1.discourse-cdn.com/cursor1/original/2X/f/f7bc157cca4b97c3f0fc83c3c1a7094871a268df.png"
 APPIMAGE_FILE="$TEMP_DIR/Cursor.AppImage"
 ICON_FILE="$TEMP_DIR/cursor-icon.png"
@@ -87,9 +94,6 @@ if [[ ! -f "$CREATE_DESKTOP_SCRIPT" ]]; then
     print_error "Please ensure the script is in the correct location."
     exit 1
 fi
-
-# Check dependencies
-check_dependencies
 
 # Download Cursor AppImage
 print_status "Downloading Cursor IDE AppImage for $ARCH architecture..."
@@ -140,8 +144,11 @@ print_status "Cursor IDE installation completed successfully!"
 print_status "You can now find Cursor in your application menu or run it from the terminal with: cursor"
 
 # Optional: Test the installation
-read -p "Would you like to test the installation by launching Cursor? (y/N): " -n 1 -r
-echo
+REPLY="N"
+if [ "${CI:-0}" != "1" ]; then
+    read -r -p "Would you like to test the installation by launching Cursor? (y/N): " -n 1 REPLY || true
+    echo
+fi
 if [[ $REPLY =~ ^[Yy]$ ]]; then
     print_status "Launching Cursor IDE..."
     /opt/cursor/cursor.AppImage --no-sandbox &

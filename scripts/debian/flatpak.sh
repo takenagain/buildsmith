@@ -1,7 +1,16 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
-sudo apt update && sudo apt upgrade -y && sudo apt install -y flatpak
+set -euo pipefail
 
-sudo apt install -y gnome-software-plugin-flatpak
+sudo apt-get update
+sudo DEBIAN_FRONTEND=noninteractive apt-get upgrade -y
+sudo apt-get install -y flatpak
 
-flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
+sudo apt-get install -y gnome-software-plugin-flatpak
+
+flathub_repo="$(mktemp /tmp/flathub.XXXXXX.flatpakrepo)"
+trap 'rm -f "$flathub_repo"' EXIT
+curl -fsSL --retry 5 --retry-all-errors \
+    https://dl.flathub.org/repo/flathub.flatpakrepo \
+    -o "$flathub_repo"
+sudo flatpak remote-add --if-not-exists flathub "$flathub_repo"

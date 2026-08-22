@@ -57,18 +57,40 @@ the installer as a normal (non-root) user with explicit opt-in:
 INSTALL_YAY=1 bash ./install.sh
 ```
 
+### YubiKey SSH agent
+
+YubiKey setup is intentionally separate from Git and OpenSSH setup. On Debian
+and Arch, run the dedicated script as the desktop user:
+
+    bash ./scripts/debian/yubikey.sh   # Debian/Ubuntu
+    bash ./scripts/arch/yubikey.sh     # Arch Linux
+
+These scripts install yubikey-agent, create the user-scoped yubikey-agent.service,
+import the desktop pinentry environment, and expose the agent at
+$XDG_RUNTIME_DIR/yubikey-agent/yubikey-agent.sock. The service is enabled with
+systemctl --user enable --now yubikey-agent.service, so SSH PIN prompts use the
+desktop session. Alpine uses its dedicated script with gpg-agent as the
+server-oriented fallback:
+
+    sh ./scripts/alpine/yubikey.sh
+
 ### Local Docker validation
 
-Validate the installer against current Ubuntu, Debian, Alpine, and Arch Linux
-images with the repository's full Docker matrix:
+Run every Linux script collected for Ubuntu, Alpine, and Arch, excluding only
+the Docker setup scripts and the dedicated YubiKey setup scripts:
+
+    make test-scripts-docker
+
+The existing installer/build smoke test remains available separately:
 
 ```bash
 make test-install-docker
 docker compose -f .devcontainer/rust-compose.yml config
 ```
 
-The Compose command validates the development container configuration; the Make
-target runs the installer and release-runner build in each current image.
+The Compose command validates the development container configuration; the
+test-install-docker target runs the installer and release-runner build in each
+current image.
 
 ## Project Structure
 

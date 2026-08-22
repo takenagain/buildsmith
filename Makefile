@@ -10,7 +10,7 @@ PROJECT_DIR := $(CURDIR)/$(BINARY_NAME)
 TARGET_DIR := $(PROJECT_DIR)/target/release
 RUST_CHECK := $(shell which rustc)
 
-.PHONY: all check-rust install-rust build install run-scripts run-% list-scripts list-scripts-json list-scripts-csv list-scripts-table clean deps test fmt fmt-check lint install-deps test-install-docker
+.PHONY: all check-rust install-rust build install run-scripts run-% list-scripts list-scripts-json list-scripts-csv list-scripts-table clean deps test fmt fmt-check lint install-deps test-install-docker test-scripts-docker
 
 install-deps:
 	@echo "Installing system dependencies..."
@@ -85,3 +85,6 @@ lint: check-rust
 
 test-install-docker:
 	@bash $(CURDIR)/scripts/test-install-docker.sh
+
+test-scripts-docker:
+	@bash $(CURDIR)/scripts/test-scripts-docker.sh

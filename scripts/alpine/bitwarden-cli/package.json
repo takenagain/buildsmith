@@ -1,0 +1,14 @@
+{
+  "name": "buildsmith-bitwarden-cli-runtime",
+  "version": "2026.8.0",
+  "description": "Integrity-locked Bitwarden CLI runtime for Buildsmith Alpine installs",
+  "engines": {
+    "node": "~22",
+    "npm": "~10"
+  },
+  "packageManager": "npm@10.9.8",
+  "private": true,
+  "dependencies": {
+    "@bitwarden/cli": "file:bitwarden-cli.tgz"
+  }
+}

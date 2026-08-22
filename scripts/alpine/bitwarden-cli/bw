@@ -1,0 +1,18 @@
+#!/bin/sh
+
+set -eu
+
+bitwarden_node="$HOME/.nvm/versions/node/v22.23.2/bin/node"
+bitwarden_entry="$HOME/.local/share/buildsmith/bitwarden-cli/node_modules/@bitwarden/cli/build/bw.js"
+
+if [ ! -x "$bitwarden_node" ]; then
+    echo "Bitwarden CLI requires its Buildsmith-managed Node.js v22.23.2 runtime." >&2
+    exit 1
+fi
+
+if [ ! -f "$bitwarden_entry" ]; then
+    echo "Bitwarden CLI 2026.8.0 is not installed in the Buildsmith runtime directory." >&2
+    exit 1
+fi
+
+exec "$bitwarden_node" "$bitwarden_entry" "$@"

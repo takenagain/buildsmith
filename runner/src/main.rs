@@ -1,7 +1,7 @@
 use anyhow::Result;
 use clap::Parser;
 use log::{debug, info, warn};
-use runner::cli::commands::{interactive_mode, list_mode, run_specified_scripts};
+use runner::cli::commands::{interactive_mode, list_mode, run_all_scripts, run_specified_scripts};
 use runner::cli::Cli;
 use runner::cli::Commands;
 use runner::scripts::collector::collect_scripts;
@@ -59,6 +59,7 @@ fn main() -> Result<()> {
         Commands::Run {
             scripts: script_names,
         } => run_specified_scripts(&scripts, script_names)?,
+        Commands::RunAll { exclude } => run_all_scripts(&scripts, &cli.scripts_dir, &exclude)?,
         Commands::List { format } => list_mode(&scripts, format)?,
     }
 

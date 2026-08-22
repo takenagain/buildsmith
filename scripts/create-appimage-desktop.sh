@@ -21,10 +21,13 @@ ICON_DEST="$APP_DIR/$(echo "$(basename "$ICON")" | tr '[:upper:]' '[:lower:]')"
 
 # Determine the correct home directory
 if [ -n "$SUDO_USER" ]; then
+    USER_NAME=$SUDO_USER
     USER_HOME=$(getent passwd "$SUDO_USER" | cut -d: -f6)
 else
+    USER_NAME=$(id -un)
     USER_HOME=$HOME
 fi
+USER_GROUP=$(id -gn "$USER_NAME")
 
 DESKTOP_PATH="$USER_HOME/.local/share/applications"
 DESKTOP_FILE="$DESKTOP_PATH/$APPNAME.desktop"
@@ -58,12 +61,17 @@ if [ -n "$ICON" ]; then
     show_loader "Moving icon to app directory"
 fi
 
-# Create applications directory if it doesn't exist and navigate to it
-mkdir -p "$DESKTOP_PATH"
+# Keep user-local desktop integration writable by the invoking user. The
+# helper is called through sudo to install the AppImage under /opt, but its
+# desktop file belongs in that user's home directory.
+sudo install -d -m 755 -o "$USER_NAME" -g "$USER_GROUP" \
+    "$USER_HOME/.local" \
+    "$USER_HOME/.local/share" \
+    "$DESKTOP_PATH"
 cd "$DESKTOP_PATH" || exit
 
 # Create the .desktop file
-touch "$APPNAME.desktop"
+sudo -u "$USER_NAME" touch "$APPNAME.desktop"
 cat > "$APPNAME.desktop" <<EOF
 [Desktop Entry]
 Version=1.0

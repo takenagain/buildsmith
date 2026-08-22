@@ -9,6 +9,7 @@ run_container() {
 
     printf 'Validating installer in %s\n' "$image"
     docker run --pull=always --rm \
+        "${buildsmith_docker_resource_args[@]}" \
         --mount "type=bind,src=${repository_root},dst=/workspace,readonly" \
         --workdir /workspace \
         --env CI=1 \
@@ -21,6 +22,8 @@ run_container() {
 }
 
 repository_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+# shellcheck source=scripts/lib/docker-validation-resources.sh
+source "$repository_root/scripts/lib/docker-validation-resources.sh"
 
 run_container "ubuntu:latest" "apt-get update && apt-get install -y --no-install-recommends bash ca-certificates curl" bash
 run_container "debian:latest" "apt-get update && apt-get install -y --no-install-recommends bash ca-certificates curl" bash

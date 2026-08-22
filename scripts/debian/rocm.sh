@@ -47,4 +47,4 @@ run_as_root apt-get install -y --no-install-recommends ca-certificates curl
 curl --fail --silent --show-error --location --proto '=https' --tlsv1.2 \
     --output "$package_path" "$amdgpu_install_url"
 run_as_root apt-get install -y "$package_path"
-run_as_root amdgpu-install --usecase=rocm --gfxversion=auto --no-dkms
+run_as_root amdgpu-install -y --usecase=rocm --gfxversion=auto --no-dkms

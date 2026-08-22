@@ -3,13 +3,13 @@
 set -eu
 
 # gcompat is Alpine's maintained glibc compatibility package.
-apk update
+sudo apk update
 java_package="$(apk search -x 'openjdk[0-9]*-jdk' | sort -V | tail -n 1 | sed 's/-[0-9].*$//')"
 if [ -z "$java_package" ]; then
     echo "Unable to locate the current Alpine OpenJDK package." >&2
     exit 1
 fi
-apk add --no-cache bash curl gcompat git "$java_package" unzip xz zip
+sudo apk add --no-cache bash curl gcompat git "$java_package" unzip xz zip
 
 export FVM_INSTALL_DIR="$HOME/fvm"
 fvm_installer="$(mktemp "${TMPDIR:-/tmp}/fvm-install.XXXXXX")"

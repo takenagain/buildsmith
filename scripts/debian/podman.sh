@@ -1,5 +1,7 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
-sudo apt -y install podman
+set -euo pipefail
 
-flatpak install -y flathub io.podman_desktop.PodmanDesktop
+sudo apt-get install -y podman
+
+sudo flatpak install -y flathub io.podman_desktop.PodmanDesktop

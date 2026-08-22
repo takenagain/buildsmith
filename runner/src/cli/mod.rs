@@ -30,6 +30,13 @@ pub enum Commands {
         scripts: Vec<String>,
     },
 
+    /// Run every collected script except paths matching an exclusion term
+    RunAll {
+        /// Case-insensitive path terms to exclude, such as docker or yubikey
+        #[arg(long = "exclude", value_name = "PATH_TERM")]
+        exclude: Vec<String>,
+    },
+
     /// List available scripts
     List {
         /// Output format for the script list

@@ -6,11 +6,11 @@ set -e
 
 echo "Installing Gnome Shell extensions..."
 
-# Check if gnome-shell-extension-manager is installed
-if ! command -v gnome-extension-manager &> /dev/null; then
+# Check if the GNOME extension CLI is installed
+if ! command -v gnome-extensions &> /dev/null; then
     echo "Installing gnome-shell-extension-manager..."
     sudo apt-get update
-    sudo apt-get install -y gnome-shell-extension-manager
+    sudo apt-get install -y gnome-shell gnome-shell-extension-manager
 fi
 
 # Define extensions to install with their UUID

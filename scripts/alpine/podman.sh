@@ -1,7 +1,9 @@
 #!/bin/sh
 
+set -eu
+
 # Install Podman
-apk add podman skopeo buildah
+sudo apk add --no-cache podman skopeo buildah
 
 # Add your user to subuid and subgid files for rootless containers
 echo "$USER:100000:65536" | sudo tee -a /etc/subuid

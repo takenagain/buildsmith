@@ -53,7 +53,7 @@ fn extract_directory(dir: &Dir, target_dir: &Path) -> Result<()> {
     }
 
     for subdir in dir.dirs() {
-        let target_subdir = target_dir.join(subdir.path());
+        let target_subdir = target_dir.join(subdir.path().file_name().unwrap());
         extract_directory(subdir, &target_subdir)?;
     }
 
@@ -63,4 +63,28 @@ fn extract_directory(dir: &Dir, target_dir: &Path) -> Result<()> {
 /// Check if there are embedded scripts available
 pub fn has_embedded_scripts() -> bool {
     !EMBEDDED_SCRIPTS.entries().is_empty()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn preserves_nested_alpine_bitwarden_asset_paths() {
+        let temp_dir = tempdir().expect("create temporary extraction directory");
+        extract_directory(&EMBEDDED_SCRIPTS, temp_dir.path()).expect("extract embedded scripts");
+
+        let bitwarden_dir = temp_dir.path().join("alpine/bitwarden-cli");
+        for asset in ["bw", "package.json", "package-lock.json"] {
+            assert!(
+                bitwarden_dir.join(asset).is_file(),
+                "missing embedded Alpine Bitwarden asset: {asset}"
+            );
+        }
+
+        assert!(
+            !temp_dir.path().join("alpine/alpine/bitwarden-cli").exists(),
+            "embedded Alpine assets must not be extracted into a duplicate alpine directory"
+        );
+    }
 }
