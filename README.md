@@ -9,6 +9,16 @@ systems, and Arch Linux.
 
 ## Usage
 
+### One-shot repository install
+
+Run the installer directly from the repository. It downloads a temporary
+Buildsmith checkout, bootstraps its build requirements, builds the runner, and
+opens the interactive script selector:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/takenagain/buildsmith/main/install.sh | bash
+```
+
 ### Interactive Mode
 
 Run all scripts in interactive mode:

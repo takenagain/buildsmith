@@ -21,6 +21,12 @@ echo_warning() {
     echo -e "${YELLOW}[WARNING]${NC} $1"
 }
 
+cleanup_bootstrap_repository() {
+    if [ -n "${BUILDSMITH_BOOTSTRAP_DIR:-}" ] && [ -d "$BUILDSMITH_BOOTSTRAP_DIR" ]; then
+        rm -rf -- "$BUILDSMITH_BOOTSTRAP_DIR"
+    fi
+}
+
 run_privileged() {
     if [ "$(id -u)" -eq 0 ]; then
         "$@"
@@ -62,23 +68,23 @@ install_make() {
     echo_info "Detected OS: $os"
 
     # Check if the bootstrap dependencies are already installed
-    if command -v make &> /dev/null && command -v curl &> /dev/null; then
-        echo_info "make and curl are already installed"
+    if command -v make &> /dev/null && command -v curl &> /dev/null && command -v git &> /dev/null; then
+        echo_info "make, curl, and git are already installed"
         return 0
     fi
 
-    echo_info "Installing make and curl..."
+    echo_info "Installing make, curl, and git..."
 
     case $os in
         debian)
             run_privileged apt-get update
-            run_privileged apt-get install -y make build-essential ca-certificates curl
+            run_privileged apt-get install -y make build-essential ca-certificates curl git
             ;;
         alpine)
-            run_privileged apk add --no-cache make build-base ca-certificates curl
+            run_privileged apk add --no-cache make build-base ca-certificates curl git
             ;;
         redhat)
-            run_privileged yum install -y make gcc gcc-c++ ca-certificates curl
+            run_privileged yum install -y make gcc gcc-c++ ca-certificates curl git
             ;;
         arch)
             run_privileged pacman -Syu --needed --noconfirm base-devel ca-certificates curl git sudo
@@ -108,12 +114,12 @@ install_make() {
             ;;
     esac
 
-    if ! command -v make &> /dev/null || ! command -v curl &> /dev/null; then
-        echo_error "Failed to install required bootstrap dependencies: make and curl"
+    if ! command -v make &> /dev/null || ! command -v curl &> /dev/null || ! command -v git &> /dev/null; then
+        echo_error "Failed to install required bootstrap dependencies: make, curl, and git"
         exit 1
     fi
 
-    echo_info "make and curl installed successfully"
+    echo_info "make, curl, and git installed successfully"
 }
 
 # Install Rust
@@ -147,8 +153,28 @@ install_rust() {
 main() {
     echo_info "Starting dev-box-setup installation..."
 
+    if [ -n "${BUILDSMITH_BOOTSTRAP_DIR:-}" ]; then
+        trap cleanup_bootstrap_repository EXIT
+    fi
+
     # Get the directory where the script is located
     SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
+
+    # A streamed raw-GitHub invocation has no repository checkout beside this
+    # script. Bootstrap a temporary checkout, then rerun the normal installer.
+    if [ ! -f "$SCRIPT_DIR/Makefile" ]; then
+        install_make
+
+        local bootstrap_dir
+        bootstrap_dir="$(mktemp -d "${TMPDIR:-/tmp}/buildsmith-bootstrap.XXXXXX")"
+        if ! git clone --depth 1 "${BUILDSMITH_REPOSITORY_URL:-https://github.com/takenagain/buildsmith.git}" "$bootstrap_dir"; then
+            rm -rf -- "$bootstrap_dir"
+            echo_error "Failed to clone the Buildsmith repository"
+            exit 1
+        fi
+
+        exec env BUILDSMITH_BOOTSTRAP_DIR="$bootstrap_dir" bash "$bootstrap_dir/install.sh"
+    fi
 
     # Change to script directory
     cd "$SCRIPT_DIR"
