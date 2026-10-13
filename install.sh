@@ -35,6 +35,30 @@ run_privileged() {
     fi
 }
 
+# Keep bootstrap distro detection self-contained: streamed install.sh may run
+# before a repository checkout exists from which to source scripts/lib.
+is_arch_family() {
+    local os_release_file="${1:-/etc/os-release}"
+    [ -r "$os_release_file" ] || return 1
+
+    local ID=''
+    local ID_LIKE=''
+    # shellcheck disable=SC1091
+    . "$os_release_file"
+
+    [ "${ID:-}" = 'arch' ] && return 0
+
+    local -a id_like_tokens=()
+    read -r -a id_like_tokens <<< "${ID_LIKE:-}"
+
+    local id_like
+    for id_like in "${id_like_tokens[@]}"; do
+        [ "$id_like" = 'arch' ] && return 0
+    done
+
+    return 1
+}
+
 # Detect OS
 detect_os() {
     case "$(uname -s)" in
@@ -45,7 +69,7 @@ detect_os() {
             echo "alpine"
         elif [ -f /etc/redhat-release ]; then
             echo "redhat"
-        elif [ -f /etc/arch-release ] || grep -qx 'ID=arch' /etc/os-release 2>/dev/null; then
+        elif [ -f /etc/arch-release ] || is_arch_family; then
             echo "arch"
         else
             echo "unknown-linux"

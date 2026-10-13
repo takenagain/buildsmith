@@ -42,15 +42,15 @@
 
 **Interfaces:**
 - Consumes: existing `collect_scripts(Option<&Path>, OsType) -> Result<Vec<PathBuf>>` interface.
-- Produces: private Rust helpers that recognize Arch metadata and the shell function `is_arch_family_os_release [path]`.
+- Produces: private Rust helpers that recognize Arch metadata and the shell function `is_arch_family_os_release [path]` for Makefile detection.
 
-- [ ] **Step 1: Add failing Rust fixture tests** for CachyOS (`ID=cachyos`, `ID_LIKE=arch`), EndeavourOS (`ID=endeavouros`, `ID_LIKE=arch`), Manjaro (`ID=manjaro`, `ID_LIKE=arch`), Garuda (`ID=garuda`, `ID_LIKE=arch`), Omarchy (`ID=omarchy`, `ID_LIKE=arch`), Fedora/Bazzite (`ID=bazzite`, `ID_LIKE="fedora"`), substring non-match (`ID_LIKE=archlinux`), and Arch script collection from a CachyOS fixture.
-- [ ] **Step 2: Run the Rust tests in Podman** and confirm the Arch metadata and collection cases fail before implementation while existing Arch and Windows collection cases pass.
-- [ ] **Step 3: Implement metadata parsing in the Rust collector**; prefer an Arch-family match from readable os-release text, then retain the existing `OsType` mapping as fallback.
-- [ ] **Step 4: Add failing shell fixture tests** for the same derivative metadata and Fedora rejection, plus source checks that both `install.sh` and `Makefile` use the shared predicate.
-- [ ] **Step 5: Implement `is_arch_family_os_release [path]`** with exact-token `ID_LIKE` matching; update the bootstrap and Makefile detection to call it while preserving `/etc/arch-release` fallback.
-- [ ] **Step 6: Update README platform coverage** to name Arch-derived distributions and clarify that Bazzite follows Fedora Atomic rather than pacman/yay.
-- [ ] **Step 7: Run Rust and shell detection suites in Podman**, then commit as `feat: detect Arch family distributions`.
+- [x] **Step 1: Add failing Rust fixture tests** for CachyOS (`ID=cachyos`, `ID_LIKE=arch`), EndeavourOS (`ID=endeavouros`, `ID_LIKE=arch`), Manjaro (`ID=manjaro`, `ID_LIKE=arch`), Garuda (`ID=garuda`, `ID_LIKE=arch`), Omarchy (`ID=omarchy`, `ID_LIKE=arch`), Fedora/Bazzite (`ID=bazzite`, `ID_LIKE="fedora"`), substring non-match (`ID_LIKE=archlinux`), and Arch script collection from a CachyOS fixture.
+- [x] **Step 2: Run the Rust tests in Podman** and confirm the Arch metadata and collection cases fail before implementation while existing Arch and Windows collection cases pass.
+- [x] **Step 3: Implement metadata parsing in the Rust collector**; prefer an Arch-family match from readable os-release text, then retain the existing `OsType` mapping as fallback.
+- [x] **Step 4: Add failing shell fixture tests** for the same derivative metadata and Fedora rejection, plus source checks for the installer and Makefile predicates.
+- [x] **Step 5: Implement `is_arch_family_os_release [path]`** with exact-token `ID_LIKE` matching for Makefile detection; keep an equivalent self-contained predicate in `install.sh` because streamed bootstrap must detect package managers before its temporary checkout exists. Preserve `/etc/arch-release` fallback.
+- [x] **Step 6: Update README platform coverage** to name Arch-derived distributions and clarify that Bazzite follows Fedora Atomic rather than pacman/yay.
+- [x] **Step 7: Run Rust and shell detection suites in Podman**, then commit as `feat: detect Arch family distributions`.
 
 ### Task 2: Add missing Arch package actions
 

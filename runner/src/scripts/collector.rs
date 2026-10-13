@@ -10,6 +10,15 @@ use walkdir::WalkDir;
 /// * `scripts_dir` - The directory containing scripts. Defaults to "../scripts" if None is provided.
 /// * `os_type` - The operating system type to determine OS-specific scripts.
 pub fn collect_scripts(scripts_dir: Option<&Path>, os_type: OsType) -> Result<Vec<PathBuf>> {
+    let os_release = std::fs::read_to_string("/etc/os-release").ok();
+    collect_scripts_with_os_release(scripts_dir, os_type, os_release.as_deref())
+}
+
+fn collect_scripts_with_os_release(
+    scripts_dir: Option<&Path>,
+    os_type: OsType,
+    os_release: Option<&str>,
+) -> Result<Vec<PathBuf>> {
     let scripts_dir = scripts_dir.unwrap_or_else(|| Path::new("../scripts"));
     debug!(
         "Collecting scripts from directory: {}",
@@ -17,7 +26,7 @@ pub fn collect_scripts(scripts_dir: Option<&Path>, os_type: OsType) -> Result<Ve
     );
     let mut scripts = Vec::new();
 
-    let os_dir = match resolve_os_script_directory(os_type) {
+    let os_dir = match resolve_os_script_directory_with_os_release(os_type, os_release) {
         Ok(value) => Some(value),
         Err(error) => {
             warn!(
@@ -125,9 +134,120 @@ fn resolve_os_script_directory(os_type: OsType) -> anyhow::Result<String> {
     Ok(os_dir.to_string())
 }
 
+fn resolve_os_script_directory_with_os_release(
+    os_type: OsType,
+    os_release: Option<&str>,
+) -> anyhow::Result<String> {
+    if let Some(os_release) = os_release {
+        if is_arch_family_os_release(os_release) {
+            return Ok("arch".to_string());
+        }
+
+        // When os-release identifies a different distribution, do not let an
+        // os_info fallback classify it as Arch and accidentally enable pacman
+        // or AUR actions there.
+        if os_type == OsType::Arch {
+            return Err(Error::msg(
+                "os-release does not identify an Arch-family distribution",
+            ));
+        }
+    }
+
+    resolve_os_script_directory(os_type)
+}
+
+fn is_arch_family_os_release(os_release: &str) -> bool {
+    let id = parse_os_release_value(os_release, "ID");
+    let id_like = parse_os_release_value(os_release, "ID_LIKE");
+
+    id.as_deref()
+        .is_some_and(|value| value.eq_ignore_ascii_case("arch"))
+        || id_like.is_some_and(|value| {
+            value
+                .split_ascii_whitespace()
+                .any(|identifier| identifier.eq_ignore_ascii_case("arch"))
+        })
+}
+
+fn parse_os_release_value(os_release: &str, key: &str) -> Option<String> {
+    os_release.lines().find_map(|line| {
+        let (field, value) = line.trim().split_once('=')?;
+        if field != key {
+            return None;
+        }
+
+        let value = value.trim();
+        let value = value
+            .strip_prefix('"')
+            .and_then(|value| value.strip_suffix('"'))
+            .or_else(|| {
+                value
+                    .strip_prefix('\'')
+                    .and_then(|value| value.strip_suffix('\''))
+            })
+            .unwrap_or(value);
+        Some(value.to_string())
+    })
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn arch_derivative_os_release_metadata_selects_arch_scripts() {
+        for os_release in [
+            "ID=cachyos\nID_LIKE=arch\n",
+            "ID=endeavouros\nID_LIKE=arch\n",
+            "ID=manjaro\nID_LIKE=arch\n",
+            "ID=garuda\nID_LIKE=arch\n",
+            "ID=omarchy\nID_LIKE=arch\n",
+            "ID=cachyos\nID_LIKE=\"arch\"\n",
+        ] {
+            assert_eq!(
+                resolve_os_script_directory_with_os_release(OsType::Ubuntu, Some(os_release))
+                    .unwrap(),
+                "arch"
+            );
+        }
+    }
+
+    #[test]
+    fn fedora_and_arch_substrings_do_not_select_arch_scripts() {
+        for os_release in [
+            "ID=bazzite\nID_LIKE=\"fedora\"\n",
+            "ID_LIKE=archlinux\n",
+            "ID_LIKE=notarch\n",
+        ] {
+            assert!(
+                resolve_os_script_directory_with_os_release(OsType::Arch, Some(os_release))
+                    .is_err()
+            );
+        }
+    }
+
+    #[test]
+    fn cachyos_metadata_collects_arch_and_common_unix_scripts() {
+        let root = tempfile::tempdir().unwrap();
+        std::fs::create_dir_all(root.path().join("unix")).unwrap();
+        std::fs::create_dir_all(root.path().join("arch")).unwrap();
+        std::fs::create_dir_all(root.path().join("debian")).unwrap();
+        std::fs::write(root.path().join("unix/common.sh"), "#!/bin/sh\n").unwrap();
+        std::fs::write(root.path().join("arch/cachyos-action.sh"), "#!/bin/sh\n").unwrap();
+        std::fs::write(root.path().join("debian/debian-only.sh"), "#!/bin/sh\n").unwrap();
+
+        let scripts = collect_scripts_with_os_release(
+            Some(root.path()),
+            OsType::Ubuntu,
+            Some("ID=cachyos\nID_LIKE=arch\n"),
+        )
+        .unwrap();
+
+        assert_eq!(scripts.len(), 2);
+        assert!(scripts.iter().any(|path| path.ends_with("cachyos-action.sh")));
+        assert!(scripts.iter().any(|path| path.ends_with("common.sh")));
+        assert!(!scripts.iter().any(|path| path.ends_with("debian-only.sh")));
+    }
 
     #[test]
     fn arch_uses_the_arch_script_directory() {
@@ -142,7 +262,8 @@ mod tests {
         std::fs::write(root.path().join("unix/common.sh"), "#!/bin/sh\n").unwrap();
         std::fs::write(root.path().join("arch/arch.sh"), "#!/bin/sh\n").unwrap();
 
-        let scripts = collect_scripts(Some(root.path()), OsType::Arch).unwrap();
+        let scripts =
+            collect_scripts_with_os_release(Some(root.path()), OsType::Arch, None).unwrap();
 
         assert_eq!(scripts.len(), 2);
         assert_eq!(

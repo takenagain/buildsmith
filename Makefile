@@ -9,6 +9,7 @@ BINARY_NAME := runner
 PROJECT_DIR := $(CURDIR)/$(BINARY_NAME)
 TARGET_DIR := $(PROJECT_DIR)/target/release
 RUST_CHECK := $(shell which rustc)
+OS_RELEASE_HELPER := $(CURDIR)/scripts/lib/distro-detection.sh
 
 .PHONY: all check-rust install-rust build install run-scripts run-% list-scripts list-scripts-json list-scripts-csv list-scripts-table clean deps test fmt fmt-check lint install-deps test-install-docker test-scripts-docker
 
@@ -19,7 +20,7 @@ install-deps:
 			bash $(CURDIR)/scripts/debian/apt.sh; \
 		elif [ -f /etc/alpine-release ]; then \
 			sh $(CURDIR)/scripts/alpine/apk.sh; \
-		elif [ -f /etc/arch-release ] || grep -qx 'ID=arch' /etc/os-release 2>/dev/null; then \
+		elif [ -f /etc/arch-release ] || bash -c '. "$(OS_RELEASE_HELPER)"; is_arch_family_os_release /etc/os-release'; then \
 			bash $(CURDIR)/scripts/arch/pacman.sh; \
 		fi; \
 	elif [ "$(shell uname -s)" = "Darwin" ]; then \

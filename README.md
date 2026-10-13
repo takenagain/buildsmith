@@ -4,8 +4,10 @@ A collection of scripts to set up development environments with a simple runner 
 
 The installer uses current upstream channels at install time: stable Rust and
 Flutter, the latest Node.js release, and current package-manager releases.
-Supported Linux distributions include Debian/Ubuntu, Alpine, Red Hat-family
-systems, and Arch Linux.
+Linux-specific script collections cover Debian/Ubuntu, Alpine, and the Arch
+family, including CachyOS, EndeavourOS, Manjaro, Garuda, and Omarchy. Other
+Linux distributions can use the common Unix scripts. Bazzite is part of the
+Fedora Atomic family, so it does not use the pacman/yay scripts.
 
 ## Usage
 
