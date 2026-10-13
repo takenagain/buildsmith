@@ -62,8 +62,15 @@ make lint        # Run linter
 ### Arch Linux and yay
 
 Arch bootstrap uses a full `pacman -Syu` upgrade and installs the standard
-development prerequisites. To also install the optional AUR helper `yay`, run
-the installer as a normal (non-root) user with explicit opt-in:
+development prerequisites. Arch-family systems also receive the Arch actions
+for Docker Engine and Desktop, Flatpak, GNOME Extension Manager, Proton VPN,
+ROCm, Snap, and Bitwarden CLI. Most use Arch repository packages. Snap's
+`snapd` is built from the AUR with `yay`, while Docker Desktop is installed
+from Docker's official Arch package. Docker marks its Arch package as
+experimental; it requires an x86_64 desktop session with virtualization.
+
+To also install the optional AUR helper `yay`, run the installer as a normal
+(non-root) user with explicit opt-in:
 
 ```bash
 INSTALL_YAY=1 bash ./install.sh

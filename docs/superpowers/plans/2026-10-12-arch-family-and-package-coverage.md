@@ -71,11 +71,11 @@
 - Consumes: Arch-family routing from Task 1 and current Debian scripts as behavior references.
 - Produces: eight runnable actions in `scripts/arch`, using official Arch packages or the documented AUR helper path.
 
-- [ ] **Step 1: Write failing package-contract tests** that assert each action installs its intended package and configures its required service/remote; assert Snap gives a clear error when `yay` is unavailable.
-- [ ] **Step 2: Run the contracts in Podman** and confirm they fail because the Arch actions do not yet exist.
-- [ ] **Step 3: Check package names and install routes in a disposable Arch Podman container** using pacman metadata; verify Docker Desktop's official Arch archive and Snap's AUR package route.
-- [ ] **Step 4: Add the eight Arch scripts**: Docker Engine (`docker`, `docker-compose`, service and user group), Docker Desktop (official Arch package via pacman), Flatpak plus Flathub, GNOME extension manager, Proton VPN (`proton-vpn-gtk-app`), ROCm (`rocm-hip-sdk` and render/video access), Snap (`snapd` via yay plus socket and `/snap` setup), and Bitwarden CLI (`bitwarden-cli`).
-- [ ] **Step 5: Exclude graphical, service-manager, and hardware-dependent actions from the generic script execution container** while retaining contract and package metadata coverage for each.
+- [x] **Step 1: Write failing package-contract tests** that assert each action installs its intended package and configures its required service/remote; assert Snap gives a clear error when `yay` is unavailable.
+- [x] **Step 2: Run the contracts in Podman** and confirm they fail because the Arch actions do not yet exist.
+- [x] **Step 3: Check package names and install routes in a disposable Arch Podman container** using pacman metadata; verify Docker Desktop's official Arch archive and Snap's AUR package route.
+- [x] **Step 4: Add the eight Arch scripts**: Docker Engine (`docker`, `docker-compose`, service and user group), Docker Desktop (official Arch package via pacman), Flatpak plus Flathub, GNOME extension manager, Proton VPN (`proton-vpn-gtk-app`), ROCm (`rocm-hip-sdk` and render/video access), Snap (`snapd` via yay plus socket and `/snap` setup), and Bitwarden CLI (`bitwarden-cli`).
+- [x] **Step 5: Exclude graphical, service-manager, and hardware-dependent actions from the generic script execution container** while retaining contract and package metadata coverage for each.
 - [ ] **Step 6: Run package contracts, shell syntax checks, and Arch package lookup in Podman**, then commit as `feat: add Arch Linux package actions`.
 
 ### Task 3: Refresh NVM and Bitwarden CLI pins

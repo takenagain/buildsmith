@@ -18,7 +18,7 @@ run_container() {
     local apparmor_namespace=''
     local -a docker_run_args docker_command
 
-    printf '\n=== Validating non-Docker/non-YubiKey scripts in %s ===\n' "$image"
+    printf '\n=== Validating selected scripts in %s ===\n' "$image"
     docker_run_args=(
         docker run --pull=always --privileged
         "${buildsmith_docker_resource_args[@]}"
@@ -135,7 +135,7 @@ run_container() {
                 SSH_PORT=2222 \\
                 NVM_MAKE_JOBS="$buildsmith_build_jobs" \\
                 PATH=/tmp/target/release:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin \\
-                sh -c \"\$runner_prefix /tmp/target/release/runner -s /workspace/scripts run-all --exclude docker --exclude yubikey\" 2>&1 | tee \"\$log_file\"; then
+                sh -c \"\$runner_prefix /tmp/target/release/runner -s /workspace/scripts run-all --exclude docker --exclude yubikey --exclude gnome-extensions --exclude protonvpn --exclude rocm --exclude snap\" 2>&1 | tee \"\$log_file\"; then
                 exit 1
             fi
             grep -F 'All selected scripts completed successfully' \"\$log_file\"
@@ -146,7 +146,7 @@ run_container() {
                 /workspace/scripts \\
                 \"\$collected_scripts_file\" \\
                 \"\$log_file\" \\
-                docker yubikey
+                docker yubikey gnome-extensions protonvpn rocm snap
         "
 }
 
@@ -154,4 +154,4 @@ run_container "ubuntu:latest" bash "apt-get update && apt-get install -y --no-in
 run_container "alpine:latest" sh "apk add --no-cache bash build-base ca-certificates curl dbus"
 run_container "archlinux:base" bash "pacman-key --init && pacman -Syu --needed --noconfirm bash base-devel ca-certificates curl dbus"
 
-printf '\nAll non-Docker/non-YubiKey Linux script validations passed.\n'
+printf '\nAll selected Linux script validations passed.\n'
