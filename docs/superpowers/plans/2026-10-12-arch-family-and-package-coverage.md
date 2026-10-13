@@ -110,10 +110,10 @@
 - Consumes: current distro-specific installers and their package/version contracts.
 - Produces: AMDGPU installer `31.60` and an evidence-backed audit for Android SDK, Proton VPN release package, CI distro tags, and Rust dependency lock versions.
 
-- [ ] **Step 1: Update the ROCm contract first** to require AMDGPU installer `31.60` and the matching package filename.
-- [ ] **Step 2: Run the ROCm contract in Podman** and confirm it fails against `31.40.1`.
-- [ ] **Step 3: Update the Debian ROCm installer** to `31.60` and `amdgpu-install_31.60.316000-1_all.deb`.
-- [ ] **Step 4: Audit Android SDK package availability, Proton VPN release metadata, and Cargo compatible updates inside Podman**; change only values proven stale, and record unchanged current pins in the progress ledger.
+- [x] **Step 1: Update the ROCm contract first** to require AMDGPU installer `31.60` and the matching package filename.
+- [x] **Step 2: Run the ROCm contract in Podman** and confirm it fails against `31.40.1`.
+- [x] **Step 3: Update the Debian ROCm installer** to `31.60` and `amdgpu-install_31.60.316000-1_all.deb`.
+- [x] **Step 4: Audit Android SDK package availability, Proton VPN release metadata, and Cargo compatible updates inside Podman**; change only values proven stale, and record unchanged current pins in the progress ledger.
 - [ ] **Step 5: Run the ROCm contract and the repository's Rust dependency checks inside Podman**, then commit as `chore: update AMDGPU installer and package locks`.
 
 ### Task 5: Verify repository-wide coverage and finish

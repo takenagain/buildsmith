@@ -30,8 +30,8 @@ case "$ubuntu_codename" in
     *) die "unsupported Ubuntu codename: ${ubuntu_codename:-unknown}" ;;
 esac
 
-amdgpu_install_version="31.40.1"
-amdgpu_install_package="amdgpu-install_31.40.1.314001-1_all.deb"
+amdgpu_install_version="31.60"
+amdgpu_install_package="amdgpu-install_31.60.316000-1_all.deb"
 amdgpu_install_url="https://repo.radeon.com/amdgpu-install/${amdgpu_install_version}/ubuntu/${ubuntu_codename}/${amdgpu_install_package}"
 
 temp_dir="$(mktemp -d)"
