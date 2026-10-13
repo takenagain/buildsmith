@@ -114,7 +114,7 @@
 - [x] **Step 2: Run the ROCm contract in Podman** and confirm it fails against `31.40.1`.
 - [x] **Step 3: Update the Debian ROCm installer** to `31.60` and `amdgpu-install_31.60.316000-1_all.deb`.
 - [x] **Step 4: Audit Android SDK package availability, Proton VPN release metadata, and Cargo compatible updates inside Podman**; change only values proven stale, and record unchanged current pins in the progress ledger.
-- [ ] **Step 5: Run the ROCm contract and the repository's Rust dependency checks inside Podman**, then commit as `chore: update AMDGPU installer and package locks`.
+- [x] **Step 5: Run the ROCm contract and the repository's Rust dependency checks inside Podman**, then commit as `chore: update AMDGPU installer and package locks`.
 
 ### Task 5: Verify repository-wide coverage and finish
 
