@@ -279,7 +279,7 @@ assert_alpine_bitwarden_supported_runtime_contract() {
     local expected_sha512='46c9a7b0999d11ccf256c7f9dfb5bc8fc1a5cdb8afad20bd0361dc4b0be28f76e7d15cf8a6c09c2428a3d7d8c9450c60ff85aeec6b9d0b8538e65d939dbdbe18'
     local expected_url='https://registry.npmjs.org/@bitwarden/cli/-/cli-2026.9.1.tgz'
     local install_root="$contract_root/home/.local/share/buildsmith/bitwarden-cli"
-    local latest_bin="$contract_root/home/.nvm/versions/node/v26.7.0/bin"
+    local latest_bin="$contract_root/home/.nvm/versions/node/v26.11.1/bin"
     local output=''
     local supported_bin="$contract_root/home/.nvm/versions/node/v24.21.0/bin"
 
@@ -378,7 +378,7 @@ nvm() {
                 export PATH="$HOME/.nvm/versions/node/v24.21.0/bin:$PATH"
                 ;;
             node)
-                export PATH="$HOME/.nvm/versions/node/v26.7.0/bin:$PATH"
+                export PATH="$HOME/.nvm/versions/node/v26.11.1/bin:$PATH"
                 ;;
             *)
                 printf 'unexpected nvm use target: %s\n' "${2-}" >&2
@@ -481,7 +481,7 @@ SUPPORTED_NPM
 #!/bin/sh
 
 if [ "$#" -eq 1 ] && [ "$1" = '--version' ]; then
-    printf '%s\n' 'v26.7.0'
+    printf '%s\n' 'v26.11.1'
     exit 0
 fi
 
@@ -751,7 +751,7 @@ nvm() {
                 export PATH="$HOME/.nvm/versions/node/v24.21.0/bin:$PATH"
                 ;;
             node)
-                export PATH="$HOME/.nvm/versions/node/v26.7.0/bin:$PATH"
+                export PATH="$HOME/.nvm/versions/node/v26.11.1/bin:$PATH"
                 ;;
             *)
                 return 64
@@ -764,7 +764,7 @@ FAKE_NVM
 
 mkdir -p \
     "$HOME/.nvm/versions/node/v24.21.0/bin" \
-    "$HOME/.nvm/versions/node/v26.7.0/bin"
+    "$HOME/.nvm/versions/node/v26.11.1/bin"
 
 cat > "$HOME/.nvm/versions/node/v24.21.0/bin/node" <<'FAKE_SUPPORTED_NODE'
 #!/bin/sh
@@ -802,18 +802,18 @@ fi
 exit 64
 FAKE_SUPPORTED_NPM
 
-cat > "$HOME/.nvm/versions/node/v26.7.0/bin/node" <<'FAKE_LATEST_NODE'
+cat > "$HOME/.nvm/versions/node/v26.11.1/bin/node" <<'FAKE_LATEST_NODE'
 #!/bin/sh
 
 if [ "$#" -eq 1 ] && [ "$1" = '--version' ]; then
-    printf '%s\n' 'v26.7.0'
+    printf '%s\n' 'v26.11.1'
     exit 0
 fi
 
 exit 64
 FAKE_LATEST_NODE
 
-cat > "$HOME/.nvm/versions/node/v26.7.0/bin/npm" <<'FAKE_LATEST_NPM'
+cat > "$HOME/.nvm/versions/node/v26.11.1/bin/npm" <<'FAKE_LATEST_NPM'
 #!/bin/sh
 
 case "$*" in
@@ -834,8 +834,8 @@ chmod +x \
     "$HOME/.nvm/nvm.sh" \
     "$HOME/.nvm/versions/node/v24.21.0/bin/node" \
     "$HOME/.nvm/versions/node/v24.21.0/bin/npm" \
-    "$HOME/.nvm/versions/node/v26.7.0/bin/node" \
-    "$HOME/.nvm/versions/node/v26.7.0/bin/npm"
+    "$HOME/.nvm/versions/node/v26.11.1/bin/node" \
+    "$HOME/.nvm/versions/node/v26.11.1/bin/npm"
 printf '%s\n' 'v0.40.8' > "${NVM_INSTALL_VERSION_EVIDENCE:?}"
 FAKE_INSTALLER
 }

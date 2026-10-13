@@ -51,6 +51,17 @@ grep -Fq '/var/lib/snapd/snap' "$arch_scripts/snap.sh" || \
 
 require_script bitwarden-cli.sh 'bitwarden-cli'
 
+# Shared Unix tools should use Arch packages when running on Arch, with the
+# existing upstream installers retained as fallbacks for other Unix systems.
+grep -Fq 'pacman -Syu --needed --noconfirm act' \
+    "$repository_root/scripts/unix/act.sh" || fail 'act must use the official Arch package'
+grep -Fq 'yay -S --needed --noconfirm cursor-bin' \
+    "$repository_root/scripts/unix/cursor-ide.sh" || fail 'Cursor must use its AUR package on Arch'
+grep -Fq 'pacman -Syu --needed --noconfirm ttf-jetbrains-mono-nerd' \
+    "$repository_root/scripts/unix/nerd-fonts.sh" || fail 'Nerd Fonts must use the Arch package'
+grep -Fq 'pacman -Syu --needed --noconfirm rustup' \
+    "$repository_root/scripts/unix/rust.sh" || fail 'Rust must bootstrap rustup from pacman on Arch'
+
 bash_path="$(command -v bash)"
 if output="$(PATH="$test_root/empty-bin" "$bash_path" "$arch_scripts/snap.sh" 2>&1)"; then
     fail 'Snap must fail when yay is unavailable'

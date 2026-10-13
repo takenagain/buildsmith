@@ -29,6 +29,16 @@ fi
 
 print_status "Installing Cursor IDE for Unix-based systems..."
 
+if command -v pacman &> /dev/null; then
+    if ! command -v yay &> /dev/null; then
+        print_error "Cursor is available from the AUR as cursor-bin. Run the Arch yay action with INSTALL_YAY=1 first."
+        exit 1
+    fi
+
+    yay -S --needed --noconfirm cursor-bin
+    exit 0
+fi
+
 # Detect package manager and install dependencies
 check_dependencies() {
     local missing_deps=()

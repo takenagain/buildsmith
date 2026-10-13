@@ -6,6 +6,10 @@ cargo_home="${CARGO_HOME:-$HOME/.cargo}"
 CARGO_BIN_DIR="$cargo_home/bin"
 export PATH="$CARGO_BIN_DIR:$PATH"
 
+if command -v pacman >/dev/null 2>&1; then
+    sudo pacman -Syu --needed --noconfirm rustup
+fi
+
 if ! command -v rustup >/dev/null 2>&1; then
     curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
 fi

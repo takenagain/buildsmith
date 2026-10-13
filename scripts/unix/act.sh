@@ -1,5 +1,10 @@
 #!/bin/sh
 
+if command -v pacman >/dev/null 2>&1; then
+    sudo pacman -Syu --needed --noconfirm act
+    exit 0
+fi
+
 installer_url='https://raw.githubusercontent.com/nektos/act/master/install.sh'
 max_attempts=3
 attempt=1

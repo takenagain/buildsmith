@@ -62,12 +62,16 @@ make lint        # Run linter
 ### Arch Linux and yay
 
 Arch bootstrap uses a full `pacman -Syu` upgrade and installs the standard
-development prerequisites. Arch-family systems also receive the Arch actions
-for Docker Engine and Desktop, Flatpak, GNOME Extension Manager, Proton VPN,
-ROCm, Snap, and Bitwarden CLI. Most use Arch repository packages. Snap's
-`snapd` is built from the AUR with `yay`, while Docker Desktop is installed
-from Docker's official Arch package. Docker marks its Arch package as
-experimental; it requires an x86_64 desktop session with virtualization.
+development prerequisites. Arch-family systems have 18 Arch-specific actions
+for pacman/yay, Git, Python, Node.js, Neovim, Flutter, OpenSSH, Podman,
+YubiKey, Docker Engine and Desktop, Flatpak, GNOME Extension Manager, Proton
+VPN, ROCm, Snap, and Bitwarden CLI. The five shared Unix actions are collected
+too: `act`, JetBrains Mono Nerd Font, and `rustup` use pacman packages; Cursor
+uses AUR `cursor-bin`; Toshy's upstream installer supports Arch and installs
+its dependencies with pacman. Most Arch actions use repository packages.
+Cursor, `snapd`, and the YubiKey agent require `yay`; Docker Desktop is
+installed from Docker's official Arch package. Docker marks its Arch package
+as experimental; it requires an x86_64 desktop session with virtualization.
 
 To also install the optional AUR helper `yay`, run the installer as a normal
 (non-root) user with explicit opt-in:

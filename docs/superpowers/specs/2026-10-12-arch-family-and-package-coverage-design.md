@@ -33,6 +33,12 @@ Add Arch scripts for the Linux actions that currently have no Arch counterpart:
 
 Keep the current common Unix scripts available for Arch-family systems. Do not add Fedora or Bazzite package support in this change.
 
+Where a common Unix action has an Arch package, use that package on Arch-family
+systems: `act`, `ttf-jetbrains-mono-nerd`, and `rustup` use pacman; Cursor uses
+the AUR `cursor-bin` package through yay. Toshy's upstream installer supports
+Arch and resolves its dependencies through pacman, so it remains on the shared
+Unix path.
+
 ## Version Refresh
 
 Refresh confirmed stale values and their tests, fixtures, lockfiles, and wrapper references:
