@@ -129,4 +129,4 @@
 - [x] **Step 1: Review every Linux script and explicit version reference** against the spec, including common Unix actions, and list any intentionally distro-specific action in the audit.
 - [x] **Step 2: Run the complete Rust and shell contract suites in Podman**, plus the Arch package and Linux script validation suites that are safe for disposable containers.
 - [x] **Step 3: Run `git diff --check`, review the complete diff, and make any required fixes test-first.**
-- [ ] **Step 4: Commit any final grouped documentation/CI updates**, verify the branch is clean, and remove task-created Podman containers, volumes, and build cache while preserving base images.
+- [x] **Step 4: Commit any final grouped documentation/CI updates**, verify the branch is clean, and remove task-created Podman containers, volumes, and build cache while preserving base images.
