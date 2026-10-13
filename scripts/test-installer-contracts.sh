@@ -275,13 +275,13 @@ POISON_RUNTIME
 
 assert_alpine_bitwarden_supported_runtime_contract() {
     local contract_root="$test_root/alpine-bitwarden-supported-runtime"
-    local expected_nvm_invocations=$'install -s 22.23.2\nuse 22.23.2\ninstall -s node\nuse node'
-    local expected_sha512='7995a6f215f69f5a68e43e73696a096c4487c42bbd02b230b6efeec09cfb34f505bb48d5f45ed9186264bd313e8d9e115ec74be5556161896f515a1c040914c2'
-    local expected_url='https://registry.npmjs.org/@bitwarden/cli/-/cli-2026.8.0.tgz'
+    local expected_nvm_invocations=$'install -s 24.21.0\nuse 24.21.0\ninstall -s node\nuse node'
+    local expected_sha512='46c9a7b0999d11ccf256c7f9dfb5bc8fc1a5cdb8afad20bd0361dc4b0be28f76e7d15cf8a6c09c2428a3d7d8c9450c60ff85aeec6b9d0b8538e65d939dbdbe18'
+    local expected_url='https://registry.npmjs.org/@bitwarden/cli/-/cli-2026.9.1.tgz'
     local install_root="$contract_root/home/.local/share/buildsmith/bitwarden-cli"
     local latest_bin="$contract_root/home/.nvm/versions/node/v26.7.0/bin"
     local output=''
-    local supported_bin="$contract_root/home/.nvm/versions/node/v22.23.2/bin"
+    local supported_bin="$contract_root/home/.nvm/versions/node/v24.21.0/bin"
 
     mkdir -p \
         "$contract_root/bin" \
@@ -360,7 +360,7 @@ if [ -z "$output" ] || [ "$saw_fail" -ne 1 ] || [ "$saw_show_error" -ne 1 ] || \
 fi
 
 case "$url" in
-    'https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.7/install.sh')
+    'https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.8/install.sh')
         printf '%s\n' "$url" > "${NVM_CURL_URL_EVIDENCE:?}"
         cat > "$output" <<'FAKE_INSTALLER'
 #!/usr/bin/env bash
@@ -374,8 +374,8 @@ nvm() {
 
     if [ "${1-}" = 'use' ]; then
         case "${2-}" in
-            22.23.2)
-                export PATH="$HOME/.nvm/versions/node/v22.23.2/bin:$PATH"
+            24.21.0)
+                export PATH="$HOME/.nvm/versions/node/v24.21.0/bin:$PATH"
                 ;;
             node)
                 export PATH="$HOME/.nvm/versions/node/v26.7.0/bin:$PATH"
@@ -390,7 +390,7 @@ nvm() {
 FAKE_NVM
 FAKE_INSTALLER
         ;;
-    'https://registry.npmjs.org/@bitwarden/cli/-/cli-2026.8.0.tgz')
+    'https://registry.npmjs.org/@bitwarden/cli/-/cli-2026.9.1.tgz')
         if [ "$proto" != '=https' ] || [ "$saw_tls_v1_2" -ne 1 ]; then
             printf '%s\n' 'Bitwarden archive download lost HTTPS/TLS hardening' >&2
             exit 64
@@ -434,14 +434,14 @@ FAKE_SHA512SUM
 set -eu
 
 if [ "$#" -eq 1 ] && [ "$1" = '--version' ]; then
-    printf '%s\n' 'v22.23.2'
+    printf '%s\n' 'v24.21.0'
     exit 0
 fi
 
 if [ "${1-}" = "${BITWARDEN_EXPECTED_ENTRY:?}" ]; then
     printf '%s\n' "$*" >> "${BITWARDEN_NODE_INVOCATIONS:?}"
     if [ "$#" -eq 2 ] && [ "$2" = '--version' ]; then
-        printf '%s\n' '2026.8.0'
+        printf '%s\n' '2026.9.1'
         exit 0
     fi
 fi
@@ -456,7 +456,7 @@ SUPPORTED_NODE
 set -eu
 
 if [ "$#" -eq 1 ] && [ "$1" = '--version' ]; then
-    printf '%s\n' '10.9.8'
+    printf '%s\n' '11.19.0'
     exit 0
 fi
 
@@ -545,11 +545,11 @@ POISON_RUNTIME
     fi
 
     if [ "$(cat "$contract_root/nvm-invocations" 2>/dev/null || :)" != "$expected_nvm_invocations" ]; then
-        fail 'Alpine Node.js must install/use v22.23.2 for Bitwarden before installing/using latest developer Node'
+        fail 'Alpine Node.js must install/use v24.21.0 for Bitwarden before installing/using latest developer Node'
     fi
 
     if [ "$(cat "$contract_root/bitwarden-curl-url-evidence" 2>/dev/null || :)" != "$expected_url" ]; then
-        fail "Bitwarden must download the official 2026.8.0 archive from $expected_url"
+        fail "Bitwarden must download the official 2026.9.1 archive from $expected_url"
     fi
 
     if [ "$(awk '{ print $1 }' "$contract_root/bitwarden-sha512-evidence" 2>/dev/null || :)" != "$expected_sha512" ]; then
@@ -561,7 +561,7 @@ POISON_RUNTIME
     fi
 
     if [ "$(cat "$contract_root/bitwarden-node-invocations" 2>/dev/null || :)" != "$install_root/node_modules/@bitwarden/cli/build/bw.js --version" ]; then
-        fail 'the bw wrapper must directly invoke the locked CLI entry with Node v22.23.2'
+        fail 'the bw wrapper must directly invoke the locked CLI entry with Node v24.21.0'
     fi
 
     if [ "$(cat "$contract_root/latest-npm-invocations" 2>/dev/null || :)" != $'install -g npm@latest\ninstall -g npm-check-updates' ]; then
@@ -580,9 +580,16 @@ POISON_RUNTIME
 
 assert_alpine_bitwarden_lock_integrity_contract() {
     local lock="$repository_root/scripts/alpine/bitwarden-cli/package-lock.json"
-    local expected_integrity='sha512-eZWm8hX2n1po5D5zaWoJbESHxCu9ArIwtu/uwJz7NPUFu0jV9F7ZGGJkvTE+jZ4RXsdL5VVhYYlvUVocBAkUwg=='
+    local manifest="$repository_root/scripts/alpine/bitwarden-cli/package.json"
+    local expected_integrity='sha512-RsmnsJmdEczyVsf537W8j8GlzbivrSC9A2HcSwvij3bn0Vz4psCcJCij19jJRQxg/4Wu7GudC4U45l2Tnb2+GA=='
     local integrity_count
     local resolved_count
+
+    grep -Fq '"version": "2026.9.1"' "$manifest" || fail 'Bitwarden runtime manifest must target CLI 2026.9.1'
+    grep -Fq '"node": "~24"' "$manifest" || fail 'Bitwarden runtime manifest must use the supported Node 24 line'
+    grep -Fq '"npm": "~11"' "$manifest" || fail 'Bitwarden runtime manifest must use the supported npm 11 line'
+    grep -Fq '"packageManager": "npm@11.19.0"' "$manifest" || fail 'Bitwarden runtime manifest must pin npm 11.19.0'
+    grep -Fq '"version": "2026.9.1"' "$lock" || fail 'Bitwarden lock must target CLI 2026.9.1'
 
     resolved_count="$(awk '/"resolved":/ { count += 1 } END { print count + 0 }' "$lock")"
     integrity_count="$(awk '/"integrity":/ { count += 1 } END { print count + 0 }' "$lock")"
@@ -650,8 +657,8 @@ EOF
 
 set -eu
 
-bitwarden_url='https://registry.npmjs.org/@bitwarden/cli/-/cli-2026.8.0.tgz'
-nvm_url='https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.7/install.sh'
+bitwarden_url='https://registry.npmjs.org/@bitwarden/cli/-/cli-2026.9.1.tgz'
+nvm_url='https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.8/install.sh'
 output=''
 retry_count=''
 retry_valid=0
@@ -740,8 +747,8 @@ nvm() {
 
     if [ "${1-}" = 'use' ]; then
         case "${2-}" in
-            22.23.2)
-                export PATH="$HOME/.nvm/versions/node/v22.23.2/bin:$PATH"
+            24.21.0)
+                export PATH="$HOME/.nvm/versions/node/v24.21.0/bin:$PATH"
                 ;;
             node)
                 export PATH="$HOME/.nvm/versions/node/v26.7.0/bin:$PATH"
@@ -756,33 +763,33 @@ nvm() {
 FAKE_NVM
 
 mkdir -p \
-    "$HOME/.nvm/versions/node/v22.23.2/bin" \
+    "$HOME/.nvm/versions/node/v24.21.0/bin" \
     "$HOME/.nvm/versions/node/v26.7.0/bin"
 
-cat > "$HOME/.nvm/versions/node/v22.23.2/bin/node" <<'FAKE_SUPPORTED_NODE'
+cat > "$HOME/.nvm/versions/node/v24.21.0/bin/node" <<'FAKE_SUPPORTED_NODE'
 #!/bin/sh
 
 if [ "$#" -eq 1 ] && [ "$1" = '--version' ]; then
-    printf '%s\n' 'v22.23.2'
+    printf '%s\n' 'v24.21.0'
     exit 0
 fi
 
 if [ "${1-}" = "$HOME/.local/share/buildsmith/bitwarden-cli/node_modules/@bitwarden/cli/build/bw.js" ] && \
     [ "${2-}" = '--version' ]; then
-    printf '%s\n' '2026.8.0'
+    printf '%s\n' '2026.9.1'
     exit 0
 fi
 
 exit 64
 FAKE_SUPPORTED_NODE
 
-cat > "$HOME/.nvm/versions/node/v22.23.2/bin/npm" <<'FAKE_SUPPORTED_NPM'
+cat > "$HOME/.nvm/versions/node/v24.21.0/bin/npm" <<'FAKE_SUPPORTED_NPM'
 #!/bin/sh
 
 set -eu
 
 if [ "$#" -eq 1 ] && [ "$1" = '--version' ]; then
-    printf '%s\n' '10.9.8'
+    printf '%s\n' '11.19.0'
     exit 0
 fi
 
@@ -819,17 +826,17 @@ exit 64
 FAKE_LATEST_NPM
 
 cat > "$HOME/.nvm/bash_completion" <<'FAKE_COMPLETION'
-nvm_completion_versions=(v0.40.7)
+nvm_completion_versions=(v0.40.8)
 printf '%s|%s\n' "${nvm_completion_versions[0]}" "${BASH_VERSION:?}" > "${BASH_COMPLETION_EVIDENCE:?}"
 FAKE_COMPLETION
 
 chmod +x \
     "$HOME/.nvm/nvm.sh" \
-    "$HOME/.nvm/versions/node/v22.23.2/bin/node" \
-    "$HOME/.nvm/versions/node/v22.23.2/bin/npm" \
+    "$HOME/.nvm/versions/node/v24.21.0/bin/node" \
+    "$HOME/.nvm/versions/node/v24.21.0/bin/npm" \
     "$HOME/.nvm/versions/node/v26.7.0/bin/node" \
     "$HOME/.nvm/versions/node/v26.7.0/bin/npm"
-printf '%s\n' 'v0.40.7' > "${NVM_INSTALL_VERSION_EVIDENCE:?}"
+printf '%s\n' 'v0.40.8' > "${NVM_INSTALL_VERSION_EVIDENCE:?}"
 FAKE_INSTALLER
 }
 
@@ -944,13 +951,13 @@ EOF
     fi
 
     if [ ! -s "$direct_root/curl-url-evidence" ] || \
-        [ "$(cat "$direct_root/curl-url-evidence" 2>/dev/null || :)" != 'https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.7/install.sh' ]; then
-        failures+=('curl must request the exact NVM v0.40.7 installer URL')
+        [ "$(cat "$direct_root/curl-url-evidence" 2>/dev/null || :)" != 'https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.8/install.sh' ]; then
+        failures+=('curl must request the exact NVM v0.40.8 installer URL')
     fi
 
     if [ ! -s "$direct_root/nvm-install-version-evidence" ] || \
-        [ "$(cat "$direct_root/nvm-install-version-evidence" 2>/dev/null || :)" != 'v0.40.7' ]; then
-        failures+=('the NVM v0.40.7 installer output must be executed')
+        [ "$(cat "$direct_root/nvm-install-version-evidence" 2>/dev/null || :)" != 'v0.40.8' ]; then
+        failures+=('the NVM v0.40.8 installer output must be executed')
     fi
 
     if [ ! -s "$direct_root/curl-output-evidence" ]; then
@@ -998,8 +1005,8 @@ EOF
         failures+=('Bash execution must source NVM Bash completion')
     else
         IFS='|' read -r completion_version sourced_bash_version < "$bash_root/bash-completion-evidence"
-        if [ "$completion_version" != 'v0.40.7' ] || [ -z "$sourced_bash_version" ]; then
-            failures+=('Bash completion must record NVM v0.40.7 and non-empty BASH_VERSION evidence')
+        if [ "$completion_version" != 'v0.40.8' ] || [ -z "$sourced_bash_version" ]; then
+            failures+=('Bash completion must record NVM v0.40.8 and non-empty BASH_VERSION evidence')
         fi
     fi
 
@@ -1091,8 +1098,8 @@ done
 for file in \
     "$repository_root/scripts/alpine/nodejs.sh" \
     "$repository_root/scripts/debian/nodejs.sh"; do
-    rg -q --fixed-strings 'nvm-sh/nvm/v0.40.7/install.sh' "$file" || \
-        fail "nvm installer is not pinned to v0.40.7 in $file"
+    rg -q --fixed-strings 'nvm-sh/nvm/v0.40.8/install.sh' "$file" || \
+        fail "nvm installer is not pinned to v0.40.8 in $file"
 done
 
 assert_alpine_nodejs_source_build_contract

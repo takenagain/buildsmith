@@ -6,11 +6,11 @@ export TMPDIR="${TMPDIR:-/tmp}"
 
 script_dir="$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)"
 bitwarden_assets="$script_dir/bitwarden-cli"
-bitwarden_cli_version='2026.8.0'
+bitwarden_cli_version='2026.9.1'
 bitwarden_cli_url="https://registry.npmjs.org/@bitwarden/cli/-/cli-${bitwarden_cli_version}.tgz"
-bitwarden_cli_sha512='7995a6f215f69f5a68e43e73696a096c4487c42bbd02b230b6efeec09cfb34f505bb48d5f45ed9186264bd313e8d9e115ec74be5556161896f515a1c040914c2'
-bitwarden_node_version='22.23.2'
-bitwarden_npm_version='10.9.8'
+bitwarden_cli_sha512='46c9a7b0999d11ccf256c7f9dfb5bc8fc1a5cdb8afad20bd0361dc4b0be28f76e7d15cf8a6c09c2428a3d7d8c9450c60ff85aeec6b9d0b8538e65d939dbdbe18'
+bitwarden_node_version='24.21.0'
+bitwarden_npm_version='11.19.0'
 bitwarden_install_root="$HOME/.local/share/buildsmith/bitwarden-cli"
 
 sudo apk add --no-cache \
@@ -36,7 +36,7 @@ nvm_installer="$(mktemp "${TMPDIR}/nvm-install.XXXXXX")"
 trap 'rm -f -- "$nvm_installer"' 0
 curl --fail --show-error --location --retry 3 \
     --output "$nvm_installer" \
-    https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.7/install.sh
+    https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.8/install.sh
 bash "$nvm_installer"
 rm -f -- "$nvm_installer"
 trap - 0
@@ -48,7 +48,7 @@ if [ -n "${BASH_VERSION:-}" ] && [ -s "$NVM_DIR/bash_completion" ]; then
     \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
 fi
 
-# Bitwarden CLI 2026.8.0 supports Node ~22 and npm ~10. Keep its runtime
+# Bitwarden CLI 2026.9.1 supports Node >=22 and npm >=10. Keep its runtime
 # isolated from Alpine's packages and from the moving developer default.
 nvm install -s "$bitwarden_node_version"
 nvm use "$bitwarden_node_version"

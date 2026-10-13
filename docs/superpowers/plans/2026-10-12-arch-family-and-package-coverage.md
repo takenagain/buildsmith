@@ -92,10 +92,10 @@
 - Consumes: existing Alpine integrity-locked CLI installation and Debian NVM installation contracts.
 - Produces: NVM `0.40.8`; Bitwarden CLI `2026.9.1`; isolated Bitwarden runtime Node `24.21.0` and npm `11.19.0`.
 
-- [ ] **Step 1: Update the installer contract expectations first** for the new NVM, Bitwarden, Node, and npm versions; update expected archive URL and wrapper paths.
-- [ ] **Step 2: Run the contract tests in Podman** and confirm they fail against the stale installer pins.
-- [ ] **Step 3: Update installer constants, wrapper, package manifest, and test fixtures** to the audited versions.
-- [ ] **Step 4: Regenerate `package-lock.json` and the Bitwarden tarball SHA-512 inside an Alpine or Node Podman container** using the official npm archive; keep lock integrity metadata.
+- [x] **Step 1: Update the installer contract expectations first** for the new NVM, Bitwarden, Node, and npm versions; update expected archive URL and wrapper paths.
+- [x] **Step 2: Run the contract tests in Podman** and confirm they fail against the stale installer pins.
+- [x] **Step 3: Update installer constants, wrapper, package manifest, and test fixtures** to the audited versions.
+- [x] **Step 4: Regenerate `package-lock.json` and the Bitwarden tarball SHA-512 inside an Alpine or Node Podman container** using the official npm archive; keep lock integrity metadata.
 - [ ] **Step 5: Run installer contract tests and an Alpine container installation validation in Podman**, then commit as `chore: refresh Node and Bitwarden versions`.
 
 ### Task 4: Refresh ROCm and audit remaining explicit versions
