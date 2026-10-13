@@ -76,7 +76,7 @@
 - [x] **Step 3: Check package names and install routes in a disposable Arch Podman container** using pacman metadata; verify Docker Desktop's official Arch archive and Snap's AUR package route.
 - [x] **Step 4: Add the eight Arch scripts**: Docker Engine (`docker`, `docker-compose`, service and user group), Docker Desktop (official Arch package via pacman), Flatpak plus Flathub, GNOME extension manager, Proton VPN (`proton-vpn-gtk-app`), ROCm (`rocm-hip-sdk` and render/video access), Snap (`snapd` via yay plus socket and `/snap` setup), and Bitwarden CLI (`bitwarden-cli`).
 - [x] **Step 5: Exclude graphical, service-manager, and hardware-dependent actions from the generic script execution container** while retaining contract and package metadata coverage for each.
-- [ ] **Step 6: Run package contracts, shell syntax checks, and Arch package lookup in Podman**, then commit as `feat: add Arch Linux package actions`.
+- [x] **Step 6: Run package contracts, shell syntax checks, and Arch package lookup in Podman**, then commit as `feat: add Arch Linux package actions`.
 
 ### Task 3: Refresh NVM and Bitwarden CLI pins
 
