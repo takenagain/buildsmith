@@ -96,7 +96,7 @@
 - [x] **Step 2: Run the contract tests in Podman** and confirm they fail against the stale installer pins.
 - [x] **Step 3: Update installer constants, wrapper, package manifest, and test fixtures** to the audited versions.
 - [x] **Step 4: Regenerate `package-lock.json` and the Bitwarden tarball SHA-512 inside an Alpine or Node Podman container** using the official npm archive; keep lock integrity metadata.
-- [ ] **Step 5: Run installer contract tests and an Alpine container installation validation in Podman**, then commit as `chore: refresh Node and Bitwarden versions`.
+- [x] **Step 5: Run installer contract tests and an Alpine container installation validation in Podman**, then commit as `chore: refresh Node and Bitwarden versions`.
 
 ### Task 4: Refresh ROCm and audit remaining explicit versions
 
